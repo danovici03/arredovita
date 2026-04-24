@@ -1,0 +1,49 @@
+{
+    email office@danovicidesign.com
+    # For dev/staging, uncomment to use Let's Encrypt staging endpoint
+    # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+# Storefront — primary domain + www redirect
+www.arredovita.it {
+    redir https://arredovita.it{uri} permanent
+}
+
+arredovita.it {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+    reverse_proxy storefront:8000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
+
+# Medusa API + Admin UI at /app
+api.arredovita.it {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    # Larger bodies for product image uploads
+    request_body {
+        max_size 50MB
+    }
+
+    reverse_proxy backend:9000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
