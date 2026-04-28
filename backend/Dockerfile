@@ -5,8 +5,9 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ libc6-compat
 COPY package.json yarn.lock ./
 RUN corepack enable \
+ && corepack prepare yarn@4.12.0 --activate \
  && yarn config set nodeLinker node-modules \
- && yarn install --frozen-lockfile --network-timeout 600000
+ && yarn install --immutable --network-timeout 600000
 
 FROM node:20-alpine AS builder
 WORKDIR /app
@@ -25,8 +26,9 @@ COPY --from=builder /app/.medusa/server ./
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
  && corepack enable \
+ && corepack prepare yarn@4.12.0 --activate \
  && yarn config set nodeLinker node-modules \
- && yarn install --production --frozen-lockfile --network-timeout 600000
+ && yarn install --immutable --network-timeout 600000
 
 EXPOSE 9000
 ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
