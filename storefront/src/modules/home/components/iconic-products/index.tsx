@@ -1,7 +1,10 @@
 "use client"
 
 import { ArrowRight, Heart, ShoppingBag } from "@phosphor-icons/react/dist/ssr"
+import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
+
+import { unsplashLoader } from "@lib/util/unsplash-loader"
 
 type Product = {
   name: string
@@ -140,11 +143,13 @@ const IconicProducts = () => {
               style={{ transitionDelay: `${(index + 1) * 100}ms` }}
             >
               <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-brand-light mb-6">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
+                  loader={unsplashLoader}
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 mix-blend-multiply"
+                  fill
+                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-105 mix-blend-multiply"
                 />
 
                 {product.badge && (

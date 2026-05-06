@@ -1,7 +1,10 @@
 "use client"
 
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr"
+import Image from "next/image"
 import { useEffect, useRef } from "react"
+
+import { unsplashLoader } from "@lib/util/unsplash-loader"
 
 type Room = {
   href: string
@@ -140,11 +143,13 @@ const Rooms = () => {
             >
               {isDark ? (
                 <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
+                    loader={unsplashLoader}
                     src={room.image}
                     alt={room.alt}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(min-width: 640px) 360px, 280px"
+                    className="object-cover"
                   />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-500" />
                   <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end text-white">
@@ -167,12 +172,14 @@ const Rooms = () => {
                 </>
               ) : (
                 <>
-                  <div className="w-full h-[65%] overflow-hidden img-zoom-wrapper">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                  <div className="relative w-full h-[65%] overflow-hidden img-zoom-wrapper">
+                    <Image
+                      loader={unsplashLoader}
                       src={room.image}
                       alt={room.alt}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="(min-width: 640px) 360px, 280px"
+                      className="object-cover"
                     />
                   </div>
                   <div className="flex-1 flex justify-between items-end p-6 sm:p-8">

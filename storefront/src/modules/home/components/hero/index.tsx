@@ -1,7 +1,10 @@
 "use client"
 
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr"
+import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
+
+import { unsplashLoader } from "@lib/util/unsplash-loader"
 
 type Slide = {
   image: string
@@ -185,11 +188,11 @@ const Hero = () => {
   }, [])
 
   return (
-    <section className="py-4 sm:py-8 w-full max-w-[1920px] mx-auto overflow-hidden">
+    <section className="py-2 sm:py-4 w-full max-w-[1920px] mx-auto overflow-hidden">
       <div className="relative w-full">
         <div
           ref={sliderRef}
-          className="snap-container flex gap-4 sm:gap-6 px-[5vw] lg:px-[10vw] overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+          className="snap-container flex gap-4 sm:gap-6 px-[7vw] lg:px-[14vw] overflow-x-auto snap-x snap-mandatory hide-scrollbar"
         >
           {EXTENDED.map((slide, index) => {
             const isClone = index === 0 || index === EXTENDED.length - 1
@@ -200,13 +203,17 @@ const Hero = () => {
                   slideRefs.current[index] = el
                 }}
                 aria-hidden={isClone}
-                className="w-[90vw] lg:w-[80vw] h-[70vh] lg:h-[80vh] flex-shrink-0 snap-center rounded-[2rem] sm:rounded-[3rem] overflow-hidden relative isolate"
+                className="w-[86vw] lg:w-[72vw] h-[55vh] lg:h-[65vh] flex-shrink-0 snap-center rounded-[2rem] sm:rounded-[3rem] overflow-hidden relative isolate"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
+                  loader={unsplashLoader}
                   src={slide.image}
                   alt={slide.alt}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(min-width: 1024px) 72vw, 86vw"
+                  priority={index === FIRST_REAL}
+                  fetchPriority={index === FIRST_REAL ? "high" : "auto"}
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-black/20" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
