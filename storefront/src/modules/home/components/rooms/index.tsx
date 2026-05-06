@@ -62,6 +62,13 @@ const ROOMS: Room[] = [
 const Rooms = () => {
   const scrollerRef = useRef<HTMLDivElement | null>(null)
   const rootRef = useRef<HTMLElement | null>(null)
+  const dragStateRef = useRef<{
+    pointerId: number
+    startX: number
+    startScroll: number
+    moved: boolean
+  } | null>(null)
+  const justDraggedRef = useRef(false)
 
   useEffect(() => {
     const root = rootRef.current
@@ -86,6 +93,50 @@ const Rooms = () => {
     if (!el) return
     const amount = el.clientWidth * 0.8 * direction
     el.scrollBy({ left: amount, behavior: "smooth" })
+  }
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Let touch use native overflow scrolling — only handle mouse/pen drags.
+    if (e.pointerType === "touch") return
+    const el = scrollerRef.current
+    if (!el) return
+    dragStateRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startScroll: el.scrollLeft,
+      moved: false,
+    }
+    el.setPointerCapture(e.pointerId)
+  }
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const state = dragStateRef.current
+    const el = scrollerRef.current
+    if (!state || !el || state.pointerId !== e.pointerId) return
+    const dx = e.clientX - state.startX
+    if (!state.moved && Math.abs(dx) > 4) state.moved = true
+    if (state.moved) {
+      e.preventDefault()
+      el.scrollLeft = state.startScroll - dx
+    }
+  }
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    const state = dragStateRef.current
+    const el = scrollerRef.current
+    if (!state || !el || state.pointerId !== e.pointerId) return
+    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId)
+    justDraggedRef.current = state.moved
+    dragStateRef.current = null
+  }
+
+  // Suppress link clicks that happened as the result of a drag.
+  const onClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (justDraggedRef.current) {
+      e.preventDefault()
+      e.stopPropagation()
+      justDraggedRef.current = false
+    }
   }
 
   return (
@@ -126,7 +177,12 @@ const Rooms = () => {
 
       <div
         ref={scrollerRef}
-        className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x -mx-4 px-4 sm:mx-0 sm:px-0"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClickCapture={onClickCapture}
+        className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x -mx-4 px-4 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing select-none"
       >
         {ROOMS.map((room, index) => {
           const isDark = room.variant === "dark"
@@ -134,6 +190,7 @@ const Rooms = () => {
             <a
               key={room.href}
               href={room.href}
+              draggable={false}
               className={`group relative flex-none w-[280px] sm:w-[360px] h-[480px] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden snap-start reveal-up ${
                 isDark
                   ? "img-zoom-wrapper"

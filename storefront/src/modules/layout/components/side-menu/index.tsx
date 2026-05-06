@@ -1,10 +1,16 @@
 "use client"
 
-import { Popover, PopoverPanel, Transition } from "@headlessui/react"
-import { ArrowRightMini, XMark } from "@medusajs/icons"
-import { Text, clx, useToggleState } from "@medusajs/ui"
-import { List } from "@phosphor-icons/react/dist/ssr"
-import { Fragment } from "react"
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react"
+import { clx, useToggleState } from "@medusajs/ui"
+import { ArrowRightMini } from "@medusajs/icons"
+import { List, X } from "@phosphor-icons/react/dist/ssr"
+import { Fragment, useState } from "react"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CountrySelect from "../country-select"
@@ -12,114 +18,153 @@ import LanguageSelect from "../language-select"
 import { HttpTypes } from "@medusajs/types"
 import { Locale } from "@lib/data/locales"
 
-const SideMenuItems = {
-  Home: "/",
-  Store: "/store",
-  Account: "/account",
-  Cart: "/cart",
-}
+type NavLink = { label: string; href: string }
 
 type SideMenuProps = {
   regions: HttpTypes.StoreRegion[] | null
   locales: Locale[] | null
   currentLocale: string | null
+  links: NavLink[]
 }
 
-const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
+const SideMenu = ({
+  regions,
+  locales,
+  currentLocale,
+  links,
+}: SideMenuProps) => {
+  const [open, setOpen] = useState(false)
   const countryToggleState = useToggleState()
   const languageToggleState = useToggleState()
 
+  const close = () => setOpen(false)
+
   return (
-    <div className="h-full">
-      <div className="flex items-center h-full">
-        <Popover className="h-full flex">
-          {({ open, close }) => (
-            <>
-              <div className="relative flex h-full">
-                <Popover.Button
-                  data-testid="nav-menu-button"
-                  aria-label="Menu"
-                  className="relative h-full flex items-center transition-all ease-out duration-200 focus:outline-none text-brand-dark hover:text-brand-accent"
-                >
-                  <List size={24} weight="regular" />
-                </Popover.Button>
-              </div>
+    <>
+      <button
+        type="button"
+        data-testid="nav-menu-button"
+        aria-label="Apri menu"
+        onClick={() => setOpen(true)}
+        className="flex items-center text-brand-dark hover:text-brand-accent transition-colors"
+      >
+        <List size={24} weight="regular" />
+      </button>
 
-              {open && (
-                <div
-                  className="fixed inset-0 z-[50] bg-black/0 pointer-events-auto"
-                  onClick={close}
-                  data-testid="side-menu-backdrop"
-                />
-              )}
+      <Transition show={open} as={Fragment}>
+        <Dialog onClose={close} className="relative z-[60]">
+          <TransitionChild
+            as={Fragment}
+            enter="transition-opacity ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transition-opacity ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <DialogBackdrop className="fixed inset-0 bg-brand-dark/40 backdrop-blur-sm" />
+          </TransitionChild>
 
-              <Transition
-                show={open}
-                as={Fragment}
-                enter="transition ease-out duration-150"
-                enterFrom="opacity-0"
-                enterTo="opacity-100 backdrop-blur-2xl"
-                leave="transition ease-in duration-150"
-                leaveFrom="opacity-100 backdrop-blur-2xl"
-                leaveTo="opacity-0"
+          <div className="fixed inset-0 flex">
+            <TransitionChild
+              as={Fragment}
+              enter="transition-transform ease-[cubic-bezier(0.16,1,0.3,1)] duration-500"
+              enterFrom="-translate-x-full"
+              enterTo="translate-x-0"
+              leave="transition-transform ease-in duration-300"
+              leaveFrom="translate-x-0"
+              leaveTo="-translate-x-full"
+            >
+              <DialogPanel
+                data-testid="nav-menu-popup"
+                className="relative flex flex-col w-[88vw] max-w-[420px] h-full bg-brand-light text-brand-dark rounded-r-[2rem] shadow-[0_24px_60px_rgba(0,0,0,0.18)] overflow-hidden"
               >
-                <PopoverPanel className="flex flex-col absolute w-full pr-4 sm:pr-0 sm:w-1/3 2xl:w-1/4 sm:min-w-min h-[calc(100vh-1rem)] z-[51] inset-x-0 text-sm text-ui-fg-on-color m-2 backdrop-blur-2xl">
-                  <div
-                    data-testid="nav-menu-popup"
-                    className="flex flex-col h-full bg-[rgba(3,7,18,0.5)] rounded-rounded justify-between p-6"
+                <div className="flex items-center justify-between px-7 pt-7">
+                  <LocalizedClientLink
+                    href="/"
+                    onClick={close}
+                    className="font-serif text-2xl font-black tracking-tighter uppercase text-brand-dark hover:text-brand-dark"
                   >
-                    <div className="flex justify-end" id="xmark">
-                      <button data-testid="close-menu-button" onClick={close}>
-                        <XMark />
-                      </button>
-                    </div>
-                    <ul className="flex flex-col gap-6 items-start justify-start">
-                      {Object.entries(SideMenuItems).map(([name, href]) => {
-                        return (
-                          <li key={name}>
-                            <LocalizedClientLink
-                              href={href}
-                              className="text-3xl leading-10 hover:text-ui-fg-disabled"
-                              onClick={close}
-                              data-testid={`${name.toLowerCase()}-link`}
-                            >
-                              {name}
-                            </LocalizedClientLink>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                    <div className="flex flex-col gap-y-6">
-                      {!!locales?.length && (
-                        <div
-                          className="flex justify-between"
-                          onMouseEnter={languageToggleState.open}
-                          onMouseLeave={languageToggleState.close}
+                    ARREDO VITA
+                    <span className="text-brand-accent">.</span>
+                  </LocalizedClientLink>
+                  <button
+                    type="button"
+                    data-testid="close-menu-button"
+                    onClick={close}
+                    aria-label="Chiudi menu"
+                    className="w-10 h-10 rounded-full border border-brand-dark/15 flex items-center justify-center hover:bg-brand-dark hover:text-brand-light transition-colors"
+                  >
+                    <X size={16} weight="regular" />
+                  </button>
+                </div>
+
+                <nav className="flex-1 overflow-y-auto px-7 pt-10 pb-6">
+                  <ul className="flex flex-col gap-1">
+                    {links.map((link) => (
+                      <li key={link.href}>
+                        <LocalizedClientLink
+                          href={link.href}
+                          onClick={close}
+                          data-testid={`${link.label.toLowerCase()}-link`}
+                          className="group flex items-baseline justify-between py-2 font-serif text-4xl text-brand-dark hover:text-brand-accent transition-colors"
                         >
-                          <LanguageSelect
-                            toggleState={languageToggleState}
-                            locales={locales}
-                            currentLocale={currentLocale}
-                          />
-                          <ArrowRightMini
-                            className={clx(
-                              "transition-transform duration-150",
-                              languageToggleState.state ? "-rotate-90" : ""
-                            )}
-                          />
-                        </div>
-                      )}
+                          <span>{link.label}</span>
+                          <ArrowRightMini className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                        </LocalizedClientLink>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-10 pt-6 border-t border-brand-dark/10">
+                    <LocalizedClientLink
+                      href="/account"
+                      onClick={close}
+                      className="block py-2 text-sm font-medium text-brand-dark/70 hover:text-brand-accent transition-colors"
+                    >
+                      Account
+                    </LocalizedClientLink>
+                    <LocalizedClientLink
+                      href="/cart"
+                      onClick={close}
+                      className="block py-2 text-sm font-medium text-brand-dark/70 hover:text-brand-accent transition-colors"
+                    >
+                      Carrello
+                    </LocalizedClientLink>
+                  </div>
+                </nav>
+
+                <div className="px-7 pt-5 pb-7 border-t border-brand-dark/10 bg-brand-light">
+                  <div className="flex flex-col gap-3 text-sm text-brand-dark/70">
+                    {!!locales?.length && (
                       <div
-                        className="flex justify-between"
+                        className="flex items-center justify-between"
+                        onMouseEnter={languageToggleState.open}
+                        onMouseLeave={languageToggleState.close}
+                      >
+                        <LanguageSelect
+                          toggleState={languageToggleState}
+                          locales={locales}
+                          currentLocale={currentLocale}
+                        />
+                        <ArrowRightMini
+                          className={clx(
+                            "transition-transform duration-150",
+                            languageToggleState.state ? "-rotate-90" : ""
+                          )}
+                        />
+                      </div>
+                    )}
+                    {regions && (
+                      <div
+                        className="flex items-center justify-between"
                         onMouseEnter={countryToggleState.open}
                         onMouseLeave={countryToggleState.close}
                       >
-                        {regions && (
-                          <CountrySelect
-                            toggleState={countryToggleState}
-                            regions={regions}
-                          />
-                        )}
+                        <CountrySelect
+                          toggleState={countryToggleState}
+                          regions={regions}
+                        />
                         <ArrowRightMini
                           className={clx(
                             "transition-transform duration-150",
@@ -127,19 +172,19 @@ const SideMenu = ({ regions, locales, currentLocale }: SideMenuProps) => {
                           )}
                         />
                       </div>
-                      <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} Medusa Store. All rights
-                        reserved.
-                      </Text>
-                    </div>
+                    )}
+                    <p className="text-xs text-brand-dark/50 mt-2">
+                      © {new Date().getFullYear()} Arredo Vita. Tutti i diritti
+                      riservati.
+                    </p>
                   </div>
-                </PopoverPanel>
-              </Transition>
-            </>
-          )}
-        </Popover>
-      </div>
-    </div>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
   )
 }
 

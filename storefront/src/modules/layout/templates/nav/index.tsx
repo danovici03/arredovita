@@ -38,6 +38,7 @@ export default async function Nav() {
           regions={regions}
           locales={locales}
           currentLocale={currentLocale}
+          links={NAV_LINKS}
         />
       </div>
       <LocalizedClientLink
