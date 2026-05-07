@@ -9,6 +9,7 @@ import {
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
+import { ShoppingBag } from "@phosphor-icons/react/dist/ssr"
 import DeleteButton from "@modules/common/components/delete-button"
 import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
@@ -82,10 +83,16 @@ const CartDropdown = ({
       <Popover className="relative h-full">
         <PopoverButton className="h-full">
           <LocalizedClientLink
-            className="hover:text-ui-fg-base"
+            className="relative inline-flex items-center hover:text-brand-accent transition-colors"
             href="/cart"
             data-testid="nav-cart-link"
-          >{`Cart (${totalItems})`}</LocalizedClientLink>
+            aria-label={`Carrello (${totalItems})`}
+          >
+            <ShoppingBag size={26} weight="light" />
+            <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-brand-dark text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              {totalItems > 99 ? "99+" : totalItems}
+            </span>
+          </LocalizedClientLink>
         </PopoverButton>
         <Transition
           show={cartDropdownOpen}

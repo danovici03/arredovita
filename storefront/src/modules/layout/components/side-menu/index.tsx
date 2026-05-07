@@ -9,8 +9,8 @@ import {
 } from "@headlessui/react"
 import { clx, useToggleState } from "@medusajs/ui"
 import { ArrowRightMini } from "@medusajs/icons"
-import { List, X } from "@phosphor-icons/react/dist/ssr"
-import { Fragment, useState } from "react"
+import { ArrowRight, List, ShoppingBag, User, X } from "@phosphor-icons/react/dist/ssr"
+import { Fragment, ReactNode, useState } from "react"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CountrySelect from "../country-select"
@@ -25,6 +25,7 @@ type SideMenuProps = {
   locales: Locale[] | null
   currentLocale: string | null
   links: NavLink[]
+  cartIndicator?: ReactNode
 }
 
 const SideMenu = ({
@@ -32,6 +33,7 @@ const SideMenu = ({
   locales,
   currentLocale,
   links,
+  cartIndicator,
 }: SideMenuProps) => {
   const [open, setOpen] = useState(false)
   const countryToggleState = useToggleState()
@@ -116,20 +118,44 @@ const SideMenu = ({
                     ))}
                   </ul>
 
-                  <div className="mt-10 pt-6 border-t border-brand-dark/10">
-                    <LocalizedClientLink
-                      href="/account"
-                      onClick={close}
-                      className="block py-2 text-sm font-medium text-brand-dark/70 hover:text-brand-accent transition-colors"
-                    >
-                      Account
-                    </LocalizedClientLink>
+                  <div className="mt-10 pt-6 border-t border-brand-dark/10 flex flex-col gap-3">
                     <LocalizedClientLink
                       href="/cart"
                       onClick={close}
-                      className="block py-2 text-sm font-medium text-brand-dark/70 hover:text-brand-accent transition-colors"
+                      data-testid="cart-link"
+                      className="group flex items-center justify-between bg-brand-dark text-brand-light rounded-full pl-5 pr-4 py-3.5 hover:bg-brand-accent transition-colors"
                     >
-                      Carrello
+                      <span className="flex items-center gap-3">
+                        <span className="relative">
+                          <ShoppingBag size={22} weight="light" />
+                          {cartIndicator}
+                        </span>
+                        <span className="text-base font-medium">
+                          Vai al carrello
+                        </span>
+                      </span>
+                      <span className="w-9 h-9 rounded-full bg-brand-light/15 flex items-center justify-center group-hover:bg-brand-light/25 transition-colors">
+                        <ArrowRight
+                          size={16}
+                          className="group-hover:translate-x-0.5 transition-transform"
+                        />
+                      </span>
+                    </LocalizedClientLink>
+
+                    <LocalizedClientLink
+                      href="/account"
+                      onClick={close}
+                      data-testid="account-link"
+                      className="group flex items-center justify-between border border-brand-dark/15 rounded-full pl-5 pr-4 py-3 hover:border-brand-dark transition-colors"
+                    >
+                      <span className="flex items-center gap-3 text-brand-dark">
+                        <User size={20} weight="light" />
+                        <span className="text-sm font-medium">Account</span>
+                      </span>
+                      <ArrowRight
+                        size={16}
+                        className="text-brand-dark/60 group-hover:translate-x-0.5 group-hover:text-brand-dark transition-all"
+                      />
                     </LocalizedClientLink>
                   </div>
                 </nav>

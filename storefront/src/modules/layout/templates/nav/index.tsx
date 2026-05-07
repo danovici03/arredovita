@@ -7,10 +7,11 @@ import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
 import SideMenu from "@modules/layout/components/side-menu"
+import SideMenuCartCount from "@modules/layout/components/side-menu/cart-count"
 import {
   List,
   MagnifyingGlass,
-  Tote,
+  ShoppingBag,
   User,
 } from "@phosphor-icons/react/dist/ssr"
 import NavShell from "./nav-shell"
@@ -39,6 +40,11 @@ export default async function Nav() {
           locales={locales}
           currentLocale={currentLocale}
           links={NAV_LINKS}
+          cartIndicator={
+            <Suspense fallback={null}>
+              <SideMenuCartCount />
+            </Suspense>
+          }
         />
       </div>
       <LocalizedClientLink
@@ -90,7 +96,7 @@ export default async function Nav() {
             data-testid="nav-cart-link"
             aria-label="Carrello"
           >
-            <Tote size={26} weight="light" />
+            <ShoppingBag size={26} weight="light" />
             <span className="absolute -top-1 -right-1 bg-brand-dark text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
               0
             </span>
