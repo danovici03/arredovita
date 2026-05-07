@@ -32,6 +32,9 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
+      args:
+        MEDUSA_ADMIN_BACKEND_URL: https://api.arredovita.it
+        DISABLE_MEDUSA_ADMIN: "false"
     image: arredovita-backend:latest
     restart: unless-stopped
     depends_on:

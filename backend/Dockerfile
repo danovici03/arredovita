@@ -13,6 +13,15 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache python3 make g++ libc6-compat
 ENV NODE_ENV=production
+
+# Admin UI is compiled into .medusa/server/public/admin at build time.
+# MEDUSA_ADMIN_BACKEND_URL is baked into the React bundle so the admin knows
+# which API to call. DISABLE_MEDUSA_ADMIN must be false for admin to ship.
+ARG MEDUSA_ADMIN_BACKEND_URL
+ARG DISABLE_MEDUSA_ADMIN=false
+ENV MEDUSA_ADMIN_BACKEND_URL=$MEDUSA_ADMIN_BACKEND_URL
+ENV DISABLE_MEDUSA_ADMIN=$DISABLE_MEDUSA_ADMIN
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN corepack enable && yarn build
