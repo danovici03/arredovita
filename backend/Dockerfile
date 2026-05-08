@@ -25,6 +25,10 @@ ENV DISABLE_MEDUSA_ADMIN=$DISABLE_MEDUSA_ADMIN
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN corepack enable && yarn build
+RUN echo "=== scripts compiled ===" \
+ && ls -la /app/.medusa/server/src/scripts/ \
+ && echo "=== csv-parse in node_modules ===" \
+ && ls /app/node_modules/csv-parse 2>&1 | head -10
 
 FROM node:20-alpine AS runner
 WORKDIR /app
