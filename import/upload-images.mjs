@@ -55,7 +55,7 @@ function saveCache(cache) {
 }
 
 async function authenticate() {
-  const res = await fetch(`${BACKEND_URL}/auth/admin/emailpass`, {
+  const res = await fetch(`${BACKEND_URL}/auth/user/emailpass`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD }),
