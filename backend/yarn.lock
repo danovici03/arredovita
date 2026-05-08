@@ -10170,6 +10170,7 @@ __metadata:
     "@types/node": "npm:^20.12.11"
     "@types/react": "npm:^18.3.2"
     "@types/react-dom": "npm:^18.2.25"
+    csv-parse: "npm:^6.2.1"
     jest: "npm:^29.7.0"
     prop-types: "npm:^15.8.1"
     react: "npm:^18.3.1"
@@ -11155,6 +11156,13 @@ __metadata:
   version: 5.6.0
   resolution: "csv-parse@npm:5.6.0"
   checksum: 10c0/52f5e6c45359902e0c8e57fc2eeed41366dc6b6d283b495b538dd50c8e8510413d6f924096ea056319cbbb8ed26e111c3a3485d7985c021bcf5abaa9e92425c7
+  languageName: node
+  linkType: hard
+
+"csv-parse@npm:^6.2.1":
+  version: 6.2.1
+  resolution: "csv-parse@npm:6.2.1"
+  checksum: 10c0/8b6f14b244ca62476d4217aac721131ba0ada3e4ed7614e43ebc99203807564dcb054144d1de4ef22ee8b0c63b431640f75d46a0e1e0f72853a954b279ba1c61
   languageName: node
   linkType: hard
 
