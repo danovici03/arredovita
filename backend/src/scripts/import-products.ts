@@ -95,7 +95,7 @@ export default async function importProducts({ container }: ExecArgs) {
     logger.info(`Skipping ${existingHandles.size} products that already exist`)
   }
 
-  const products = []
+  const products: any[] = []
   let skippedNoTitle = 0
   let pricedFromDefault = 0
 
