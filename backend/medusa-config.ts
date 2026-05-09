@@ -4,26 +4,42 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 const redisUrl = process.env.REDIS_URL
 
-// The local file provider builds public URLs for uploads from this base.
-// Without it, Medusa defaults to http://localhost:9000/static, which breaks
-// any client (storefront, admin) that loads images from a different host.
-const fileBackendUrl = `${(process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000').replace(/\/$/, '')}/static`
+// S3-compatible object storage (Hetzner, R2, AWS, etc.) is used when
+// S3_BUCKET is set. Local dev falls back to writing under ./static.
+const s3Bucket = process.env.S3_BUCKET
+
+const fileProvider = s3Bucket
+  ? {
+      resolve: '@medusajs/medusa/file-s3',
+      id: 's3',
+      is_default: true,
+      options: {
+        file_url: process.env.S3_FILE_URL,
+        access_key_id: process.env.S3_ACCESS_KEY_ID,
+        secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+        region: process.env.S3_REGION,
+        bucket: s3Bucket,
+        endpoint: process.env.S3_ENDPOINT,
+        additional_client_config: {
+          forcePathStyle: true,
+        },
+      },
+    }
+  : {
+      resolve: '@medusajs/medusa/file-local',
+      id: 'local',
+      is_default: true,
+      options: {
+        backend_url: `${(process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000').replace(/\/$/, '')}/static`,
+        upload_dir: 'static',
+      },
+    }
 
 const modules: any[] = [
   {
     resolve: '@medusajs/medusa/file',
     options: {
-      providers: [
-        {
-          resolve: '@medusajs/medusa/file-local',
-          id: 'local',
-          is_default: true,
-          options: {
-            backend_url: fileBackendUrl,
-            upload_dir: 'static',
-          },
-        },
-      ],
+      providers: [fileProvider],
     },
   },
 ]
