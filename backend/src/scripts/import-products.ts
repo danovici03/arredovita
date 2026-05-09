@@ -53,6 +53,7 @@ export default async function importProducts({ container }: ExecArgs) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const salesChannelService = container.resolve(Modules.SALES_CHANNEL)
   const fulfillmentService = container.resolve(Modules.FULFILLMENT)
+  const productService = container.resolve(Modules.PRODUCT)
 
   if (!fs.existsSync(CSV_PATH)) {
     throw new Error(`CSV not found: ${CSV_PATH}`)
@@ -95,6 +96,35 @@ export default async function importProducts({ container }: ExecArgs) {
     logger.info(`Skipping ${existingHandles.size} products that already exist`)
   }
 
+  // Pre-create tags so createProductsWorkflow can attach them by id.
+  const allTagValues = new Set<string>()
+  for (const row of rows) {
+    if (existingHandles.has(row["Product Handle"]?.trim() || "")) continue
+    for (const v of pickTags(row)) allTagValues.add(v)
+  }
+  const tagValueToId = new Map<string, string>()
+  if (allTagValues.size) {
+    const { data: existingTags } = await query.graph({
+      entity: "product_tag",
+      fields: ["id", "value"],
+      filters: { value: [...allTagValues] },
+    })
+    for (const t of existingTags as { id: string; value: string }[]) {
+      tagValueToId.set(t.value, t.id)
+    }
+    const missing = [...allTagValues].filter((v) => !tagValueToId.has(v))
+    if (missing.length) {
+      logger.info(`Creating ${missing.length} new product tags`)
+      const created = await productService.createProductTags(
+        missing.map((value) => ({ value }))
+      )
+      for (const t of created as { id: string; value: string }[]) {
+        tagValueToId.set(t.value, t.id)
+      }
+    }
+    logger.info(`Tag map: ${tagValueToId.size} tags ready`)
+  }
+
   const products: any[] = []
   let skippedNoTitle = 0
   let pricedFromDefault = 0
@@ -133,7 +163,12 @@ export default async function importProducts({ container }: ExecArgs) {
       status: ProductStatus.DRAFT,
       shipping_profile_id: shippingProfile.id,
       images,
-      tags: tagValues.length ? tagValues.map((value) => ({ value })) : undefined,
+      tags: tagValues.length
+        ? tagValues
+            .map((value) => tagValueToId.get(value))
+            .filter((id): id is string => !!id)
+            .map((id) => ({ id }))
+        : undefined,
       sales_channels: [{ id: defaultChannel.id }],
       options: [{ title: optionName, values: [optionValue] }],
       variants: [
