@@ -1,119 +1,128 @@
 "use client"
 
-import Back from "@modules/common/icons/back"
-import FastDelivery from "@modules/common/icons/fast-delivery"
-import Refresh from "@modules/common/icons/refresh"
-
-import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
+import {
+  ArrowsCounterClockwise,
+  ArrowUUpLeft,
+  Truck,
+} from "@phosphor-icons/react/dist/ssr"
+import { useState } from "react"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
 }
 
+const TABS = [
+  { key: "specs", label: "Specifiche" },
+  { key: "shipping", label: "Spedizioni & Resi" },
+] as const
+
+type TabKey = (typeof TABS)[number]["key"]
+
 const ProductTabs = ({ product }: ProductTabsProps) => {
-  const tabs = [
+  const [active, setActive] = useState<TabKey>("specs")
+
+  return (
+    <section className="bg-brand-light rounded-[2.5rem] p-8 lg:p-12">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
+        <h2 className="font-serif text-3xl lg:text-4xl text-brand-dark">
+          Dettagli del prodotto
+        </h2>
+        <div className="flex items-center p-1 bg-white rounded-full self-start lg:self-auto">
+          {TABS.map((tab) => {
+            const isActive = active === tab.key
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActive(tab.key)}
+                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-colors ${
+                  isActive
+                    ? "bg-brand-dark text-white shadow-sm"
+                    : "text-brand-dark/60 hover:bg-brand-light"
+                }`}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-[2rem] p-6 lg:p-10">
+        {active === "specs" ? (
+          <SpecsPanel product={product} />
+        ) : (
+          <ShippingPanel />
+        )}
+      </div>
+    </section>
+  )
+}
+
+const Spec = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex flex-col gap-1 py-4 border-b border-brand-dark/10">
+    <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50">
+      {label}
+    </span>
+    <span className="text-brand-dark text-base">{value}</span>
+  </div>
+)
+
+const SpecsPanel = ({ product }: ProductTabsProps) => {
+  const dimensions =
+    product.length && product.width && product.height
+      ? `${product.length}L × ${product.width}P × ${product.height}H cm`
+      : "—"
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+      <Spec label="Materiale" value={product.material || "—"} />
+      <Spec label="Tipologia" value={product.type?.value || "—"} />
+      <Spec
+        label="Paese di origine"
+        value={product.origin_country || "—"}
+      />
+      <Spec label="Dimensioni" value={dimensions} />
+      <Spec
+        label="Peso"
+        value={product.weight ? `${product.weight} g` : "—"}
+      />
+      <Spec label="SKU" value={product.variants?.[0]?.sku || "—"} />
+    </div>
+  )
+}
+
+const ShippingPanel = () => {
+  const items = [
     {
-      label: "Product Information",
-      component: <ProductInfoTab product={product} />,
+      icon: Truck,
+      title: "Consegna rapida",
+      body: "Il tuo pacco arriverà in 3–5 giorni lavorativi, presso il punto di ritiro o direttamente a casa tua.",
     },
     {
-      label: "Shipping & Returns",
-      component: <ShippingInfoTab />,
+      icon: ArrowsCounterClockwise,
+      title: "Cambi semplici",
+      body: "La taglia non è giusta? Nessun problema, sostituiamo il prodotto con uno nuovo senza complicazioni.",
+    },
+    {
+      icon: ArrowUUpLeft,
+      title: "Resi facili",
+      body: "Restituisci il prodotto e ti rimborsiamo. Senza domande, faremo il possibile perché il reso sia sereno.",
     },
   ]
 
   return (
-    <div className="w-full">
-      <Accordion type="multiple">
-        {tabs.map((tab, i) => (
-          <Accordion.Item
-            key={i}
-            title={tab.label}
-            headingSize="medium"
-            value={tab.label}
-          >
-            {tab.component}
-          </Accordion.Item>
-        ))}
-      </Accordion>
-    </div>
-  )
-}
-
-const ProductInfoTab = ({ product }: ProductTabsProps) => {
-  return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-2 gap-x-8">
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Material</span>
-            <p>{product.material ? product.material : "-"}</p>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {items.map(({ icon: Icon, title, body }) => (
+        <div key={title} className="flex flex-col gap-3">
+          <div className="w-12 h-12 rounded-full bg-brand-light flex items-center justify-center text-brand-dark">
+            <Icon size={20} weight="regular" />
           </div>
-          <div>
-            <span className="font-semibold">Country of origin</span>
-            <p>{product.origin_country ? product.origin_country : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Type</span>
-            <p>{product.type ? product.type.value : "-"}</p>
-          </div>
+          <h3 className="font-bold text-brand-dark">{title}</h3>
+          <p className="text-brand-dark/60 text-sm leading-relaxed">{body}</p>
         </div>
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Weight</span>
-            <p>{product.weight ? `${product.weight} g` : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Dimensions</span>
-            <p>
-              {product.length && product.width && product.height
-                ? `${product.length}L x ${product.width}W x ${product.height}H`
-                : "-"}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-const ShippingInfoTab = () => {
-  return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-1 gap-y-8">
-        <div className="flex items-start gap-x-2">
-          <FastDelivery />
-          <div>
-            <span className="font-semibold">Fast delivery</span>
-            <p className="max-w-sm">
-              Your package will arrive in 3-5 business days at your pick up
-              location or in the comfort of your home.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Refresh />
-          <div>
-            <span className="font-semibold">Simple exchanges</span>
-            <p className="max-w-sm">
-              Is the fit not quite right? No worries - we&apos;ll exchange your
-              product for a new one.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Back />
-          <div>
-            <span className="font-semibold">Easy returns</span>
-            <p className="max-w-sm">
-              Just return your product and we&apos;ll refund your money. No
-              questions asked – we&apos;ll do our best to make sure your return
-              is hassle-free.
-            </p>
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   )
 }

@@ -9,21 +9,11 @@ import CartButton from "@modules/layout/components/cart-button"
 import SideMenu from "@modules/layout/components/side-menu"
 import SideMenuCartCount from "@modules/layout/components/side-menu/cart-count"
 import {
-  List,
   MagnifyingGlass,
   ShoppingBag,
   User,
 } from "@phosphor-icons/react/dist/ssr"
-import NavShell from "./nav-shell"
-
-const NAV_LINKS = [
-  { label: "Negozio", href: "/store" },
-  { label: "Collezioni", href: "/collections" },
-  { label: "Esplora", href: "/categories" },
-  { label: "Confronta", href: "/compare" },
-  { label: "Contatti", href: "/contact" },
-  { label: "Caratteristiche", href: "/features" },
-]
+import NavInteractive from "./nav-interactive"
 
 export default async function Nav() {
   const [regions, locales, currentLocale] = await Promise.all([
@@ -39,7 +29,6 @@ export default async function Nav() {
           regions={regions}
           locales={locales}
           currentLocale={currentLocale}
-          links={NAV_LINKS}
           cartIndicator={
             <Suspense fallback={null}>
               <SideMenuCartCount />
@@ -54,20 +43,6 @@ export default async function Nav() {
       >
         ARREDO VITA<span className="text-brand-accent">.</span>
       </LocalizedClientLink>
-    </>
-  )
-
-  const center = (
-    <>
-      {NAV_LINKS.map((link) => (
-        <LocalizedClientLink
-          key={link.href}
-          href={link.href}
-          className="hover:text-brand-accent transition-colors"
-        >
-          {link.label}
-        </LocalizedClientLink>
-      ))}
     </>
   )
 
@@ -108,5 +83,5 @@ export default async function Nav() {
     </>
   )
 
-  return <NavShell left={left} center={center} right={right} />
+  return <NavInteractive left={left} right={right} />
 }

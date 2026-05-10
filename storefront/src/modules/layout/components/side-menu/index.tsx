@@ -9,7 +9,14 @@ import {
 } from "@headlessui/react"
 import { clx, useToggleState } from "@medusajs/ui"
 import { ArrowRightMini } from "@medusajs/icons"
-import { ArrowRight, List, ShoppingBag, User, X } from "@phosphor-icons/react/dist/ssr"
+import {
+  ArrowRight,
+  CaretDown,
+  List,
+  ShoppingBag,
+  User,
+  X,
+} from "@phosphor-icons/react/dist/ssr"
 import { Fragment, ReactNode, useState } from "react"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -17,14 +24,12 @@ import CountrySelect from "../country-select"
 import LanguageSelect from "../language-select"
 import { HttpTypes } from "@medusajs/types"
 import { Locale } from "@lib/data/locales"
-
-type NavLink = { label: string; href: string }
+import { FLAT_LINKS, MEGA_MENU } from "@modules/layout/components/mega-menu/data"
 
 type SideMenuProps = {
   regions: HttpTypes.StoreRegion[] | null
   locales: Locale[] | null
   currentLocale: string | null
-  links: NavLink[]
   cartIndicator?: ReactNode
 }
 
@@ -32,10 +37,10 @@ const SideMenu = ({
   regions,
   locales,
   currentLocale,
-  links,
   cartIndicator,
 }: SideMenuProps) => {
   const [open, setOpen] = useState(false)
+  const [expanded, setExpanded] = useState<string | null>(MEGA_MENU[0]?.key ?? null)
   const countryToggleState = useToggleState()
   const languageToggleState = useToggleState()
 
@@ -102,14 +107,88 @@ const SideMenu = ({
                 </div>
 
                 <nav className="flex-1 overflow-y-auto px-7 pt-10 pb-6">
-                  <ul className="flex flex-col gap-1">
-                    {links.map((link) => (
-                      <li key={link.href}>
+                  <ul className="flex flex-col gap-2">
+                    {MEGA_MENU.map((root) => {
+                      const isOpen = expanded === root.key
+                      return (
+                        <li key={root.key}>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setExpanded(isOpen ? null : root.key)
+                            }
+                            aria-expanded={isOpen}
+                            className="w-full flex items-center justify-between py-2 font-serif text-3xl text-brand-dark hover:text-brand-accent transition-colors text-left"
+                          >
+                            <span>{root.label}</span>
+                            <CaretDown
+                              size={18}
+                              weight="bold"
+                              className={`transition-transform duration-200 ${
+                                isOpen ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
+                          <div
+                            className={`grid transition-all duration-300 ease-out ${
+                              isOpen
+                                ? "grid-rows-[1fr] opacity-100"
+                                : "grid-rows-[0fr] opacity-0"
+                            }`}
+                          >
+                            <div className="overflow-hidden">
+                              <ul className="flex flex-col gap-1 pl-1 pt-2 pb-3">
+                                <li>
+                                  <LocalizedClientLink
+                                    href={root.href}
+                                    onClick={close}
+                                    className="group flex items-center justify-between py-1.5 text-sm font-bold uppercase tracking-[0.15em] text-brand-dark/70 hover:text-brand-dark transition-colors"
+                                  >
+                                    <span>Tutto il {root.label}</span>
+                                    <ArrowRight
+                                      size={14}
+                                      weight="bold"
+                                      className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all"
+                                    />
+                                  </LocalizedClientLink>
+                                </li>
+                                {root.items.map((item) => (
+                                  <li key={item.href}>
+                                    <LocalizedClientLink
+                                      href={item.href}
+                                      onClick={close}
+                                      className="group flex items-baseline justify-between py-1.5 text-lg text-brand-dark hover:text-brand-accent transition-colors"
+                                    >
+                                      <span className="flex items-baseline gap-2">
+                                        <span>{item.label}</span>
+                                        {item.count !== undefined && (
+                                          <span className="text-xs text-brand-dark/40">
+                                            {item.count}
+                                          </span>
+                                        )}
+                                      </span>
+                                      <ArrowRight
+                                        size={14}
+                                        weight="bold"
+                                        className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all"
+                                      />
+                                    </LocalizedClientLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </li>
+                      )
+                    })}
+
+                    {FLAT_LINKS.map((link) => (
+                      <li key={link.key}>
                         <LocalizedClientLink
                           href={link.href}
                           onClick={close}
-                          data-testid={`${link.label.toLowerCase()}-link`}
-                          className="group flex items-baseline justify-between py-2 font-serif text-4xl text-brand-dark hover:text-brand-accent transition-colors"
+                          data-testid={`${link.key}-link`}
+                          className="group flex items-baseline justify-between py-2 font-serif text-3xl text-brand-dark hover:text-brand-accent transition-colors"
                         >
                           <span>{link.label}</span>
                           <ArrowRightMini className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />

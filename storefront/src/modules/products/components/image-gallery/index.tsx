@@ -1,5 +1,4 @@
 import { HttpTypes } from "@medusajs/types"
-import { Container } from "@medusajs/ui"
 import Image from "next/image"
 
 type ImageGalleryProps = {
@@ -7,33 +6,55 @@ type ImageGalleryProps = {
 }
 
 const ImageGallery = ({ images }: ImageGalleryProps) => {
+  if (!images?.length) {
+    return (
+      <div className="aspect-[5/4] w-full rounded-[2rem] bg-brand-light" />
+    )
+  }
+
+  const [hero, ...rest] = images
+
   return (
-    <div className="flex items-start relative">
-      <div className="flex flex-col flex-1 small:mx-16 gap-y-4">
-        {images.map((image, index) => {
-          return (
-            <Container
+    <div className="flex flex-col gap-4">
+      <div
+        className="relative aspect-[5/4] w-full overflow-hidden rounded-[2rem] bg-brand-light img-zoom-wrapper"
+        id={hero.id}
+      >
+        {!!hero.url && (
+          <Image
+            src={hero.url}
+            priority
+            fetchPriority="high"
+            alt="Product image 1"
+            fill
+            sizes="(min-width: 1024px) 56vw, 100vw"
+            className="object-cover"
+          />
+        )}
+      </div>
+
+      {rest.length > 0 && (
+        <div className="grid grid-cols-2 gap-4">
+          {rest.map((image, index) => (
+            <div
               key={image.id}
-              className="relative aspect-[29/34] w-full overflow-hidden bg-ui-bg-subtle"
+              className="relative aspect-square w-full overflow-hidden rounded-[2rem] bg-brand-light img-zoom-wrapper"
               id={image.id}
             >
               {!!image.url && (
                 <Image
                   src={image.url}
-                  priority={index <= 2 ? true : false}
-                  className="absolute inset-0 rounded-rounded"
-                  alt={`Product image ${index + 1}`}
+                  priority={index <= 1}
+                  alt={`Product image ${index + 2}`}
                   fill
-                  sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-                  style={{
-                    objectFit: "cover",
-                  }}
+                  sizes="(min-width: 1024px) 28vw, 50vw"
+                  className="object-cover"
                 />
               )}
-            </Container>
-          )
-        })}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -23,26 +23,33 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
 
   return (
     <div className="flex flex-col gap-y-3">
-      <span className="text-sm">Select {title}</span>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-brand-dark/60">{title}</span>
+        {current && (
+          <span className="font-bold text-brand-dark">{current}</span>
+        )}
+      </div>
       <div
-        className="flex flex-wrap justify-between gap-2"
+        className="flex flex-wrap gap-2"
         data-testid={dataTestId}
       >
         {filteredOptions.map((v) => {
+          const isActive = v === current
           return (
             <button
-              onClick={() => updateOption(option.id, v)}
               key={v}
-              className={clx(
-                "border-ui-border-base bg-ui-bg-subtle border text-small-regular h-10 rounded-rounded p-2 flex-1 ",
-                {
-                  "border-ui-border-interactive": v === current,
-                  "hover:shadow-elevation-card-rest transition-shadow ease-in-out duration-150":
-                    v !== current,
-                }
-              )}
+              onClick={() => updateOption(option.id, v)}
               disabled={disabled}
               data-testid="option-button"
+              className={clx(
+                "px-5 py-2.5 rounded-full text-sm font-bold border transition-all",
+                {
+                  "bg-brand-dark text-white border-brand-dark": isActive,
+                  "bg-white text-brand-dark border-brand-dark/15 hover:border-brand-dark/40":
+                    !isActive,
+                  "opacity-50 cursor-not-allowed": disabled,
+                }
+              )}
             >
               {v}
             </button>
