@@ -26,29 +26,42 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
   } = totals
 
   return (
-    <div>
-      <div className="flex flex-col gap-y-2 txt-medium text-ui-fg-subtle ">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-y-2 text-sm text-brand-dark/70">
         <div className="flex items-center justify-between">
-          <span>Subtotal (excl. shipping and taxes)</span>
-          <span data-testid="cart-subtotal" data-value={item_subtotal || 0}>
+          <span>Subtotale</span>
+          <span
+            className="text-brand-dark tabular-nums"
+            data-testid="cart-subtotal"
+            data-value={item_subtotal || 0}
+          >
             {convertToLocale({ amount: item_subtotal ?? 0, currency_code })}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span>Shipping</span>
-          <span data-testid="cart-shipping" data-value={shipping_subtotal || 0}>
-            {convertToLocale({ amount: shipping_subtotal ?? 0, currency_code })}
+          <span>Spedizione</span>
+          <span
+            className="text-brand-dark tabular-nums"
+            data-testid="cart-shipping"
+            data-value={shipping_subtotal || 0}
+          >
+            {shipping_subtotal
+              ? convertToLocale({
+                  amount: shipping_subtotal,
+                  currency_code,
+                })
+              : "Da calcolare"}
           </span>
         </div>
         {!!discount_subtotal && (
           <div className="flex items-center justify-between">
-            <span>Discount</span>
+            <span>Sconto</span>
             <span
-              className="text-ui-fg-interactive"
+              className="text-brand-accent font-bold tabular-nums"
               data-testid="cart-discount"
               data-value={discount_subtotal || 0}
             >
-              -{" "}
+              −{" "}
               {convertToLocale({
                 amount: discount_subtotal ?? 0,
                 currency_code,
@@ -56,25 +69,28 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
             </span>
           </div>
         )}
-        <div className="flex justify-between">
-          <span className="flex gap-x-1 items-center ">Taxes</span>
-          <span data-testid="cart-taxes" data-value={tax_total || 0}>
+        <div className="flex items-center justify-between">
+          <span>IVA</span>
+          <span
+            className="text-brand-dark tabular-nums"
+            data-testid="cart-taxes"
+            data-value={tax_total || 0}
+          >
             {convertToLocale({ amount: tax_total ?? 0, currency_code })}
           </span>
         </div>
       </div>
-      <div className="h-px w-full border-b border-gray-200 my-4" />
-      <div className="flex items-center justify-between text-ui-fg-base mb-2 txt-medium ">
-        <span>Total</span>
+      <div className="border-t border-brand-dark/10" />
+      <div className="flex items-baseline justify-between">
+        <span className="font-serif text-lg text-brand-dark">Totale</span>
         <span
-          className="txt-xlarge-plus"
+          className="font-serif text-2xl text-brand-dark tabular-nums"
           data-testid="cart-total"
           data-value={total || 0}
         >
           {convertToLocale({ amount: total ?? 0, currency_code })}
         </span>
       </div>
-      <div className="h-px w-full border-b border-gray-200 mt-4" />
     </div>
   )
 }

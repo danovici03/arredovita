@@ -20,6 +20,10 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
+  title: {
+    default: "Arredo Vita | Design d'Interni Moderno",
+    template: "%s | Arredo Vita",
+  },
 }
 
 export default function RootLayout(props: { children: React.ReactNode }) {

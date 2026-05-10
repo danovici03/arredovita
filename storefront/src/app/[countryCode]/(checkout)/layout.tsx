@@ -13,23 +13,23 @@ export default function CheckoutLayout({
         <nav className="flex h-full items-center content-container justify-between">
           <LocalizedClientLink
             href="/cart"
-            className="text-small-semi text-ui-fg-base flex items-center gap-x-2 uppercase flex-1 basis-0"
+            className="text-small-semi text-brand-dark flex items-center gap-x-2 uppercase flex-1 basis-0"
             data-testid="back-to-cart-link"
           >
             <ChevronDown className="rotate-90" size={16} />
-            <span className="mt-px hidden small:block txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base ">
-              Back to shopping cart
+            <span className="mt-px hidden small:block txt-compact-plus text-brand-dark/60 hover:text-brand-dark">
+              Torna al carrello
             </span>
-            <span className="mt-px block small:hidden txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base">
-              Back
+            <span className="mt-px block small:hidden txt-compact-plus text-brand-dark/60 hover:text-brand-dark">
+              Indietro
             </span>
           </LocalizedClientLink>
           <LocalizedClientLink
             href="/"
-            className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
+            className="font-serif text-xl lg:text-2xl font-black tracking-tighter text-brand-dark uppercase hover:text-brand-dark"
             data-testid="store-link"
           >
-            Medusa Store
+            ARREDO VITA<span className="text-brand-accent">.</span>
           </LocalizedClientLink>
           <div className="flex-1 basis-0" />
         </nav>

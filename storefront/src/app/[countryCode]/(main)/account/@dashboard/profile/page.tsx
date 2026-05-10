@@ -11,8 +11,8 @@ import { listRegions } from "@lib/data/regions"
 import { retrieveCustomer } from "@lib/data/customer"
 
 export const metadata: Metadata = {
-  title: "Profile",
-  description: "View and edit your Medusa Store profile.",
+  title: "Profilo",
+  description: "Visualizza e modifica il tuo profilo Arredo Vita.",
 }
 
 export default async function Profile() {

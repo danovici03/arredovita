@@ -1,23 +1,34 @@
-import { Heading, Text } from "@medusajs/ui"
-
-import InteractiveLink from "@modules/common/components/interactive-link"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { ArrowRight, ShoppingBag } from "@phosphor-icons/react/dist/ssr"
 
 const EmptyCartMessage = () => {
   return (
-    <div className="py-48 px-2 flex flex-col justify-center items-start" data-testid="empty-cart-message">
-      <Heading
-        level="h1"
-        className="flex flex-row text-3xl-regular gap-x-2 items-baseline"
-      >
-        Cart
-      </Heading>
-      <Text className="text-base-regular mt-4 mb-6 max-w-[32rem]">
-        You don&apos;t have anything in your cart. Let&apos;s change that, use
-        the link below to start browsing our products.
-      </Text>
-      <div>
-        <InteractiveLink href="/store">Explore products</InteractiveLink>
-      </div>
+    <div
+      className="bg-white rounded-3xl py-16 lg:py-24 px-6 flex flex-col items-center text-center shadow-sm"
+      data-testid="empty-cart-message"
+    >
+      <span className="w-20 h-20 rounded-full bg-brand-light flex items-center justify-center mb-6">
+        <ShoppingBag size={32} weight="light" className="text-brand-dark" />
+      </span>
+      <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50">
+        Carrello
+      </span>
+      <h1 className="font-serif text-3xl lg:text-4xl text-brand-dark mt-2">
+        Il tuo carrello è vuoto
+      </h1>
+      <p className="text-brand-dark/60 mt-3 max-w-md">
+        Non hai ancora aggiunto nessun articolo. Lasciati ispirare dalle nostre
+        collezioni e trova il pezzo perfetto per la tua casa.
+      </p>
+      <LocalizedClientLink href="/store" className="mt-8">
+        <button
+          type="button"
+          className="bg-brand-dark text-white rounded-full px-7 py-3.5 font-bold text-sm flex items-center justify-center gap-2 hover:bg-brand-accent transition-colors"
+        >
+          <span>Esplora il negozio</span>
+          <ArrowRight size={16} weight="bold" />
+        </button>
+      </LocalizedClientLink>
     </div>
   )
 }
