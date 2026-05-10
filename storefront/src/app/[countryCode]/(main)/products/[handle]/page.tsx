@@ -7,7 +7,6 @@ import { HttpTypes } from "@medusajs/types"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
-  searchParams: Promise<{ v_id?: string }>
 }
 
 export async function generateStaticParams() {
@@ -52,23 +51,6 @@ export async function generateStaticParams() {
   }
 }
 
-function getImagesForVariant(
-  product: HttpTypes.StoreProduct,
-  selectedVariantId?: string
-) {
-  if (!selectedVariantId || !product.variants) {
-    return product.images
-  }
-
-  const variant = product.variants!.find((v) => v.id === selectedVariantId)
-  if (!variant || !variant.images.length) {
-    return product.images
-  }
-
-  const imageIdsMap = new Map(variant.images.map((i) => [i.id, true]))
-  return product.images!.filter((i) => imageIdsMap.has(i.id))
-}
-
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { handle } = params
@@ -101,9 +83,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function ProductPage(props: Props) {
   const params = await props.params
   const region = await getRegion(params.countryCode)
-  const searchParams = await props.searchParams
-
-  const selectedVariantId = searchParams.v_id
 
   if (!region) {
     notFound()
@@ -114,18 +93,36 @@ export default async function ProductPage(props: Props) {
     queryParams: { handle: params.handle },
   }).then(({ response }) => response.products[0])
 
-  const images = getImagesForVariant(pricedProduct, selectedVariantId)
-
   if (!pricedProduct) {
     notFound()
   }
+
+  const upgradeHandles = (() => {
+    const raw = (pricedProduct.metadata ?? {}) as Record<string, unknown>
+    const list = Array.isArray(raw.upgrades) ? raw.upgrades : []
+    return list.filter((h): h is string => typeof h === "string" && h.length > 0)
+  })()
+
+  const upgrades = upgradeHandles.length
+    ? await listProducts({
+        countryCode: params.countryCode,
+        queryParams: {
+          handle: upgradeHandles,
+          limit: upgradeHandles.length,
+        },
+      }).then(({ response }) =>
+        upgradeHandles
+          .map((h) => response.products.find((p) => p.handle === h))
+          .filter((p): p is HttpTypes.StoreProduct => !!p)
+      )
+    : []
 
   return (
     <ProductTemplate
       product={pricedProduct}
       region={region}
       countryCode={params.countryCode}
-      images={images}
+      upgrades={upgrades}
     />
   )
 }

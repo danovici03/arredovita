@@ -2,6 +2,8 @@ import React, { Suspense } from "react"
 
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
+import ProductCompare from "@modules/products/components/product-compare"
+import ProductHighlights from "@modules/products/components/product-highlights"
 import ProductTabs from "@modules/products/components/product-tabs"
 import RelatedProducts from "@modules/products/components/related-products"
 import ProductInfo from "@modules/products/templates/product-info"
@@ -15,14 +17,14 @@ type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
   countryCode: string
-  images: HttpTypes.StoreProductImage[]
+  upgrades?: HttpTypes.StoreProduct[]
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   region,
   countryCode,
-  images,
+  upgrades = [],
 }) => {
   if (!product || !product.id) {
     return notFound()
@@ -35,8 +37,9 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         data-testid="product-container"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          <div className="lg:col-span-7">
-            <ImageGallery images={images} />
+          <div className="lg:col-span-7 flex flex-col gap-8">
+            <ImageGallery product={product} />
+            <ProductHighlights product={product} />
           </div>
 
           <div className="lg:col-span-5">
@@ -48,10 +51,15 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     disabled={true}
                     product={product}
                     region={region}
+                    upgrades={upgrades}
                   />
                 }
               >
-                <ProductActionsWrapper id={product.id} region={region} />
+                <ProductActionsWrapper
+                  id={product.id}
+                  region={region}
+                  upgrades={upgrades}
+                />
               </Suspense>
             </div>
           </div>
@@ -61,6 +69,8 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           <ProductTabs product={product} />
         </div>
       </section>
+
+      <ProductCompare product={product} />
 
       <section
         className="content-container my-16 lg:my-24"

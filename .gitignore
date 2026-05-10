@@ -31,3 +31,10 @@ yarn-error.log*
 # Test / coverage
 coverage/
 .nyc_output/
+
+# Playwright / ad-hoc screenshots
+.playwright-mcp/
+/concept-*.jpeg
+/concept-*.png
+/shopify-concept-*.jpeg
+/arredovita-*.jpeg

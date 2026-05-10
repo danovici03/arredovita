@@ -6,10 +6,12 @@ import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import { clx } from "@medusajs/ui"
 import {
+  ArrowUUpLeft,
   EnvelopeSimple,
   FacebookLogo,
   Minus,
   Plus,
+  ShieldCheck,
   ShoppingBag,
   Storefront,
   Truck,
@@ -17,6 +19,9 @@ import {
   XLogo,
 } from "@phosphor-icons/react/dist/ssr"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
+import ProductUpgrades, {
+  UpgradeSelection,
+} from "@modules/products/components/product-upgrades"
 import { isEqual } from "lodash"
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -25,6 +30,7 @@ import MobileActions from "./mobile-actions"
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
+  upgrades?: HttpTypes.StoreProduct[]
   disabled?: boolean
 }
 
@@ -39,6 +45,7 @@ const optionsAsKeymap = (
 
 export default function ProductActions({
   product,
+  upgrades = [],
   disabled,
 }: ProductActionsProps) {
   const router = useRouter()
@@ -49,15 +56,39 @@ export default function ProductActions({
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
   const [isBuyingNow, setIsBuyingNow] = useState(false)
+  const [upgradeSelections, setUpgradeSelections] = useState<UpgradeSelection[]>(
+    []
+  )
+  const [addError, setAddError] = useState<string | null>(null)
   const countryCode = useParams().countryCode as string
 
-  // If there is only 1 variant, preselect the options
+  const toggleUpgrade = (selection: UpgradeSelection, checked: boolean) => {
+    setUpgradeSelections((prev) => {
+      const without = prev.filter((s) => s.productId !== selection.productId)
+      return checked ? [...without, selection] : without
+    })
+  }
+  const selectedUpgradeIds = upgradeSelections.map((s) => s.variantId)
+
+  // Preselect options from URL ?v_id, or from the only variant when there is one.
   useEffect(() => {
-    if (product.variants?.length === 1) {
-      const variantOptions = optionsAsKeymap(product.variants[0].options)
-      setOptions(variantOptions ?? {})
+    const variants = product.variants ?? []
+    if (variants.length === 0) return
+
+    const urlVariantId = searchParams.get("v_id")
+    const fromUrl = urlVariantId
+      ? variants.find((v) => v.id === urlVariantId)
+      : undefined
+    const fallback = variants.length === 1 ? variants[0] : undefined
+    const target = fromUrl ?? fallback
+
+    if (target) {
+      setOptions(optionsAsKeymap(target.options) ?? {})
     }
-  }, [product.variants])
+    // Run only when the product changes — we don't want to fight user clicks
+    // by re-applying the URL on every searchParams change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id])
 
   const selectedVariant = useMemo(() => {
     if (!product.variants || product.variants.length === 0) {
@@ -83,6 +114,47 @@ export default function ProductActions({
       return isEqual(variantOptions, options)
     })
   }, [product.variants, options])
+
+  const valueImagesByOption = useMemo(() => {
+    const variants = product.variants ?? []
+    const variantImage = (v: HttpTypes.StoreProductVariant) =>
+      (v as any)?.images?.[0]?.url ?? (v.metadata as any)?.image
+
+    const map: Record<string, Record<string, string>> = {}
+
+    for (const opt of product.options ?? []) {
+      const valueMap: Record<string, string> = {}
+
+      for (const value of opt.values ?? []) {
+        // 1. Prefer a variant that matches the user's other selected options
+        //    AND has this option's value. Falls back to any variant with the value.
+        const otherSelections = Object.entries(options).filter(
+          ([oid, val]) => oid !== opt.id && val
+        )
+
+        const candidates = variants.filter((v) =>
+          (v.options ?? []).some(
+            (vo: any) => vo.option_id === opt.id && vo.value === value.value
+          )
+        )
+
+        const preferred =
+          candidates.find((v) =>
+            otherSelections.every(([oid, val]) =>
+              (v.options ?? []).some(
+                (vo: any) => vo.option_id === oid && vo.value === val
+              )
+            )
+          ) ?? candidates[0]
+
+        const image = preferred ? variantImage(preferred) : undefined
+        if (typeof image === "string") valueMap[value.value] = image
+      }
+
+      if (Object.keys(valueMap).length > 0) map[opt.id] = valueMap
+    }
+    return map
+  }, [product.options, product.variants, options])
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString())
@@ -143,12 +215,30 @@ export default function ProductActions({
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return null
     setIsAdding(true)
-    await addToCart({
-      variantId: selectedVariant.id,
-      quantity,
-      countryCode,
-    })
-    setIsAdding(false)
+    setAddError(null)
+    try {
+      await addToCart({
+        variantId: selectedVariant.id,
+        quantity,
+        countryCode,
+      })
+      for (const sel of upgradeSelections) {
+        await addToCart({
+          variantId: sel.variantId,
+          quantity: 1,
+          countryCode,
+        })
+      }
+      setUpgradeSelections([])
+    } catch (e) {
+      setAddError(
+        e instanceof Error
+          ? e.message
+          : "Si è verificato un errore. Riprova."
+      )
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   const handleBuyNow = async () => {
@@ -226,6 +316,7 @@ export default function ProductActions({
                 current={options[option.id]}
                 updateOption={setOptionValue}
                 title={option.title ?? ""}
+                valueImages={valueImagesByOption[option.id]}
                 data-testid="product-options"
                 disabled={!!disabled || isAdding}
               />
@@ -233,19 +324,43 @@ export default function ProductActions({
           </div>
         )}
 
+        <ProductUpgrades
+          upgrades={upgrades}
+          selectedVariantIds={selectedUpgradeIds}
+          onToggle={toggleUpgrade}
+          disabled={!!disabled || isAdding}
+        />
+
         {lowStockCount !== null && (
-          <div className="flex items-center gap-2.5 text-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-60" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-accent" />
-            </span>
-            <span className="text-brand-dark/80">
-              Affrettati, restano solo{" "}
-              <span className="font-bold text-brand-dark">
-                {lowStockCount} pezzi
-              </span>{" "}
-              in magazzino.
-            </span>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2.5 text-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-60" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-accent" />
+              </span>
+              <span className="text-brand-dark/80">
+                Affrettati, restano solo{" "}
+                <span className="font-bold text-brand-dark">
+                  {lowStockCount} {lowStockCount === 1 ? "pezzo" : "pezzi"}
+                </span>{" "}
+                in magazzino.
+              </span>
+            </div>
+            <div
+              className="h-1.5 w-full rounded-full bg-brand-light overflow-hidden"
+              role="progressbar"
+              aria-valuenow={lowStockCount}
+              aria-valuemin={0}
+              aria-valuemax={10}
+              aria-label="Disponibilità in magazzino"
+            >
+              <div
+                className="h-full bg-brand-accent rounded-full transition-all"
+                style={{
+                  width: `${Math.max(8, Math.min(100, (lowStockCount / 10) * 100))}%`,
+                }}
+              />
+            </div>
           </div>
         )}
 
@@ -310,38 +425,58 @@ export default function ProductActions({
           {isBuyingNow ? "Reindirizzamento…" : "Acquista ora"}
         </button>
 
-        <div className="bg-brand-light rounded-2xl p-4 flex flex-col gap-3 text-sm">
-          <div className="flex items-start gap-3">
-            <Storefront
-              size={20}
-              weight="regular"
-              className="text-brand-dark mt-0.5 shrink-0"
-            />
-            <div>
-              <p className="font-bold text-brand-dark">
-                Ritiro disponibile in showroom
-              </p>
-              <p className="text-brand-dark/60 mt-0.5">
-                Pronto in 2 giorni lavorativi
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Truck
-              size={20}
-              weight="regular"
-              className="text-brand-dark mt-0.5 shrink-0"
-            />
-            <div>
-              <p className="font-bold text-brand-dark">
-                Spedizione gratuita in Italia
-              </p>
-              <p className="text-brand-dark/60 mt-0.5">
-                Per ordini superiori a 250€ — consegna in 3–5 giorni
-              </p>
-            </div>
-          </div>
-        </div>
+        {addError && (
+          <p
+            role="alert"
+            className="text-sm text-brand-accent bg-brand-accent/10 border border-brand-accent/20 rounded-2xl px-4 py-3"
+          >
+            {addError}
+          </p>
+        )}
+
+        <ul className="flex flex-col gap-2 text-sm">
+          {[
+            {
+              Icon: Truck,
+              title: "Spedizione gratuita in Italia",
+              note: "Per ordini superiori a 250€ — consegna in 3–5 giorni",
+            },
+            {
+              Icon: ArrowUUpLeft,
+              title: "Reso entro 14 giorni",
+              note: "Restituzione gratuita, rimborso completo",
+            },
+            {
+              Icon: ShieldCheck,
+              title: "Garanzia 2 anni",
+              note: "Inclusa con ogni acquisto",
+            },
+            {
+              Icon: Storefront,
+              title: "Ritiro in showroom Manfredonia",
+              note: "Pronto in 2 giorni lavorativi",
+            },
+          ].map(({ Icon, title, note }) => (
+            <li
+              key={title}
+              className="flex items-center gap-3 px-4 py-3 rounded-full bg-brand-light"
+            >
+              <Icon
+                size={18}
+                weight="regular"
+                className="text-brand-dark shrink-0"
+              />
+              <span className="flex-1 min-w-0">
+                <span className="block font-bold text-brand-dark leading-tight">
+                  {title}
+                </span>
+                <span className="block text-xs text-brand-dark/60 leading-tight mt-0.5 truncate">
+                  {note}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
 
         <div className="flex items-center justify-between pt-2 text-sm">
           <span className="text-brand-dark/60">Condividi</span>

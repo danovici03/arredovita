@@ -1,12 +1,34 @@
+"use client"
+
 import { HttpTypes } from "@medusajs/types"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
+import { useMemo } from "react"
 
 type ImageGalleryProps = {
-  images: HttpTypes.StoreProductImage[]
+  product: HttpTypes.StoreProduct
 }
 
-const ImageGallery = ({ images }: ImageGalleryProps) => {
-  if (!images?.length) {
+const ImageGallery = ({ product }: ImageGalleryProps) => {
+  const searchParams = useSearchParams()
+  const variantId = searchParams.get("v_id")
+
+  const images = useMemo<HttpTypes.StoreProductImage[]>(() => {
+    const all = product.images ?? []
+    if (!variantId || !product.variants) return all
+    const variant = product.variants.find((v) => v.id === variantId)
+    if (!variant) return all
+    const variantImages = (variant as any).images as
+      | HttpTypes.StoreProductImage[]
+      | null
+      | undefined
+    if (!variantImages?.length) return all
+    const ids = new Set(variantImages.map((i) => i.id))
+    const filtered = all.filter((i) => ids.has(i.id))
+    return filtered.length ? filtered : all
+  }, [variantId, product])
+
+  if (!images.length) {
     return (
       <div className="aspect-[5/4] w-full rounded-[2rem] bg-brand-light" />
     )
@@ -22,6 +44,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
       >
         {!!hero.url && (
           <Image
+            key={hero.id}
             src={hero.url}
             priority
             fetchPriority="high"
@@ -43,6 +66,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
             >
               {!!image.url && (
                 <Image
+                  key={image.id}
                   src={image.url}
                   priority={index <= 1}
                   alt={`Product image ${index + 2}`}

@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 
+import BestSellers from "@modules/home/components/best-sellers"
 import Hero from "@modules/home/components/hero"
 import IconicProducts from "@modules/home/components/iconic-products"
 import Rooms from "@modules/home/components/rooms"
@@ -28,6 +29,7 @@ export default async function Home(props: {
       <Hero />
       <Rooms />
       <IconicProducts />
+      <BestSellers countryCode={countryCode} />
     </>
   )
 }
