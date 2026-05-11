@@ -42,11 +42,10 @@ export const getCacheOptions = async (
 
   const cacheTag = await getCacheTag(tag)
 
-  if (!cacheTag) {
-    return {}
-  }
-
-  return { tags: [`${cacheTag}`] }
+  // Bare `tag` is the global key that backend subscribers revalidate on
+  // category/product/collection events. The session-scoped `cacheTag`
+  // stays for per-visitor invalidation (e.g. region changes).
+  return { tags: cacheTag ? [cacheTag, tag] : [tag] }
 }
 
 export const setAuthToken = async (token: string) => {

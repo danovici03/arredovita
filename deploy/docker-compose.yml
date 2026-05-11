@@ -57,6 +57,8 @@ services:
       MEDUSA_BACKEND_URL: https://api.arredovita.it
       MEDUSA_ADMIN_BACKEND_URL: https://api.arredovita.it
       DISABLE_MEDUSA_ADMIN: "false"
+      STOREFRONT_REVALIDATE_URL: ${STOREFRONT_REVALIDATE_URL:-https://arredovita.it/api/revalidate}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     volumes:
       - backend_static:/app/static
     expose:
