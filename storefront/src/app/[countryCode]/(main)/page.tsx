@@ -7,7 +7,7 @@ import Rooms from "@modules/home/components/rooms"
 import { getRegion } from "@lib/data/regions"
 
 export const metadata: Metadata = {
-  title: "Arredo Vita | Design d'Interni Moderno",
+  title: { absolute: "Arredo Vita | Design d'Interni Moderno" },
   description:
     "Il minimalismo italiano portato nel tuo spazio. Design creato per resistere per generazioni.",
 }
