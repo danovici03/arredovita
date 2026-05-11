@@ -1,114 +1,133 @@
 "use client"
 
 import { clx } from "@medusajs/ui"
+import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 export function Pagination({
   page,
   totalPages,
-  'data-testid': dataTestid
+  "data-testid": dataTestid,
 }: {
   page: number
   totalPages: number
-  'data-testid'?: string
+  "data-testid"?: string
 }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // Helper function to generate an array of numbers within a range
   const arrayRange = (start: number, stop: number) =>
     Array.from({ length: stop - start + 1 }, (_, index) => start + index)
 
-  // Function to handle page changes
   const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return
     const params = new URLSearchParams(searchParams)
     params.set("page", newPage.toString())
-    router.push(`${pathname}?${params.toString()}`)
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
-  // Function to render a page button
-  const renderPageButton = (
-    p: number,
-    label: string | number,
-    isCurrent: boolean
-  ) => (
+  const pageButton = (p: number, isCurrent: boolean) => (
     <button
       key={p}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
-        "text-ui-fg-base hover:text-ui-fg-subtle": isCurrent,
-      })}
-      disabled={isCurrent}
+      type="button"
       onClick={() => handlePageChange(p)}
+      disabled={isCurrent}
+      aria-current={isCurrent ? "page" : undefined}
+      aria-label={`Vai alla pagina ${p}`}
+      className={clx(
+        "h-11 min-w-11 px-4 inline-flex items-center justify-center rounded-full text-sm font-bold transition-colors",
+        isCurrent
+          ? "bg-brand-dark text-white cursor-default"
+          : "bg-white text-brand-dark border border-brand-dark/15 hover:border-brand-dark hover:bg-brand-dark hover:text-white"
+      )}
     >
-      {label}
+      {p}
     </button>
   )
 
-  // Function to render ellipsis
-  const renderEllipsis = (key: string) => (
+  const ellipsis = (key: string) => (
     <span
       key={key}
-      className="txt-xlarge-plus text-ui-fg-muted items-center cursor-default"
+      aria-hidden
+      className="h-11 min-w-11 inline-flex items-center justify-center text-brand-dark/40 text-sm font-bold"
     >
-      ...
+      …
     </span>
   )
 
-  // Function to render page buttons based on the current page and total pages
   const renderPageButtons = () => {
-    const buttons = []
+    const buttons: React.ReactNode[] = []
 
     if (totalPages <= 7) {
-      // Show all pages
       buttons.push(
-        ...arrayRange(1, totalPages).map((p) =>
-          renderPageButton(p, p, p === page)
+        ...arrayRange(1, totalPages).map((p) => pageButton(p, p === page))
+      )
+    } else if (page <= 4) {
+      buttons.push(...arrayRange(1, 5).map((p) => pageButton(p, p === page)))
+      buttons.push(ellipsis("e1"))
+      buttons.push(pageButton(totalPages, totalPages === page))
+    } else if (page >= totalPages - 3) {
+      buttons.push(pageButton(1, 1 === page))
+      buttons.push(ellipsis("e2"))
+      buttons.push(
+        ...arrayRange(totalPages - 4, totalPages).map((p) =>
+          pageButton(p, p === page)
         )
       )
     } else {
-      // Handle different cases for displaying pages and ellipses
-      if (page <= 4) {
-        // Show 1, 2, 3, 4, 5, ..., lastpage
-        buttons.push(
-          ...arrayRange(1, 5).map((p) => renderPageButton(p, p, p === page))
-        )
-        buttons.push(renderEllipsis("ellipsis1"))
-        buttons.push(
-          renderPageButton(totalPages, totalPages, totalPages === page)
-        )
-      } else if (page >= totalPages - 3) {
-        // Show 1, ..., lastpage - 4, lastpage - 3, lastpage - 2, lastpage - 1, lastpage
-        buttons.push(renderPageButton(1, 1, 1 === page))
-        buttons.push(renderEllipsis("ellipsis2"))
-        buttons.push(
-          ...arrayRange(totalPages - 4, totalPages).map((p) =>
-            renderPageButton(p, p, p === page)
-          )
-        )
-      } else {
-        // Show 1, ..., page - 1, page, page + 1, ..., lastpage
-        buttons.push(renderPageButton(1, 1, 1 === page))
-        buttons.push(renderEllipsis("ellipsis3"))
-        buttons.push(
-          ...arrayRange(page - 1, page + 1).map((p) =>
-            renderPageButton(p, p, p === page)
-          )
-        )
-        buttons.push(renderEllipsis("ellipsis4"))
-        buttons.push(
-          renderPageButton(totalPages, totalPages, totalPages === page)
-        )
-      }
+      buttons.push(pageButton(1, 1 === page))
+      buttons.push(ellipsis("e3"))
+      buttons.push(
+        ...arrayRange(page - 1, page + 1).map((p) => pageButton(p, p === page))
+      )
+      buttons.push(ellipsis("e4"))
+      buttons.push(pageButton(totalPages, totalPages === page))
     }
 
     return buttons
   }
 
-  // Render the component
+  const isFirst = page <= 1
+  const isLast = page >= totalPages
+
   return (
-    <div className="flex justify-center w-full mt-12">
-      <div className="flex gap-3 items-end" data-testid={dataTestid}>{renderPageButtons()}</div>
-    </div>
+    <nav
+      aria-label="Paginazione"
+      className="flex justify-center w-full mt-16"
+      data-testid={dataTestid}
+    >
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => handlePageChange(page - 1)}
+          disabled={isFirst}
+          aria-label="Pagina precedente"
+          className={clx(
+            "h-11 w-11 inline-flex items-center justify-center rounded-full border transition-colors",
+            isFirst
+              ? "border-brand-dark/10 text-brand-dark/30 cursor-not-allowed"
+              : "border-brand-dark/15 text-brand-dark hover:border-brand-dark hover:bg-brand-dark hover:text-white"
+          )}
+        >
+          <ArrowLeft size={16} weight="bold" />
+        </button>
+        {renderPageButtons()}
+        <button
+          type="button"
+          onClick={() => handlePageChange(page + 1)}
+          disabled={isLast}
+          aria-label="Pagina successiva"
+          className={clx(
+            "h-11 w-11 inline-flex items-center justify-center rounded-full border transition-colors",
+            isLast
+              ? "border-brand-dark/10 text-brand-dark/30 cursor-not-allowed"
+              : "border-brand-dark/15 text-brand-dark hover:border-brand-dark hover:bg-brand-dark hover:text-white"
+          )}
+        >
+          <ArrowRight size={16} weight="bold" />
+        </button>
+      </div>
+    </nav>
   )
 }

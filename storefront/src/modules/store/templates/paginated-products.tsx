@@ -1,6 +1,6 @@
 import { listProductsWithSort } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import ProductPreview from "@modules/products/components/product-preview"
+import ProductCard from "@modules/products/components/product-card"
 import { Pagination } from "@modules/store/components/pagination"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 
@@ -55,7 +55,7 @@ export default async function PaginatedProducts({
     return null
   }
 
-  let {
+  const {
     response: { products, count },
   } = await listProductsWithSort({
     page,
@@ -66,19 +66,30 @@ export default async function PaginatedProducts({
 
   const totalPages = Math.ceil(count / PRODUCT_LIMIT)
 
+  if (products.length === 0) {
+    return (
+      <div className="w-full rounded-[2rem] border border-brand-dark/10 bg-brand-light/50 p-12 text-center">
+        <p className="font-serif text-2xl text-brand-dark">
+          Nessun prodotto trovato
+        </p>
+        <p className="text-brand-dark/60 mt-2 text-sm">
+          Prova a modificare i filtri o torna al catalogo completo.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <>
       <ul
-        className="grid grid-cols-2 w-full small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-12 w-full"
         data-testid="products-list"
       >
-        {products.map((p) => {
-          return (
-            <li key={p.id}>
-              <ProductPreview product={p} region={region} />
-            </li>
-          )
-        })}
+        {products.map((p, idx) => (
+          <li key={p.id}>
+            <ProductCard product={p} priority={idx < 4} />
+          </li>
+        ))}
       </ul>
       {totalPages > 1 && (
         <Pagination
