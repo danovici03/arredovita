@@ -19,10 +19,10 @@ const SORT_OPTIONS: SortOption[] = [
 
 type RefinementBarProps = {
   sortBy: SortOptions
-  totalCount?: number
+  className?: string
 }
 
-const RefinementBar = ({ sortBy, totalCount }: RefinementBarProps) => {
+const RefinementBar = ({ sortBy, className }: RefinementBarProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -38,46 +38,36 @@ const RefinementBar = ({ sortBy, totalCount }: RefinementBarProps) => {
   )
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-10">
-      <div className="flex items-center gap-3 text-brand-dark">
-        {typeof totalCount === "number" && (
-          <span
-            className="text-xs uppercase tracking-[0.18em] font-bold text-brand-dark/50"
-            data-testid="product-count"
+    <div
+      className={clx(
+        "flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 -mx-4 px-4 sm:mx-0 sm:px-0",
+        className
+      )}
+      data-testid="sort-by-container"
+    >
+      <span className="text-xs uppercase tracking-[0.18em] font-bold text-brand-dark/50 shrink-0 mr-1">
+        Ordina
+      </span>
+      {SORT_OPTIONS.map((opt) => {
+        const isActive = opt.value === sortBy
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setSort(opt.value)}
+            className={clx(
+              "px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors",
+              isActive
+                ? "bg-brand-dark text-white"
+                : "bg-white text-brand-dark border border-brand-dark/15 hover:border-brand-dark/40"
+            )}
+            data-testid="sort-by-link"
+            data-active={isActive}
           >
-            {totalCount} {totalCount === 1 ? "prodotto" : "prodotti"}
-          </span>
-        )}
-      </div>
-
-      <div
-        className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0"
-        data-testid="sort-by-container"
-      >
-        <span className="text-xs uppercase tracking-[0.18em] font-bold text-brand-dark/50 shrink-0 mr-1">
-          Ordina
-        </span>
-        {SORT_OPTIONS.map((opt) => {
-          const isActive = opt.value === sortBy
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setSort(opt.value)}
-              className={clx(
-                "px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors",
-                isActive
-                  ? "bg-brand-dark text-white"
-                  : "bg-white text-brand-dark border border-brand-dark/15 hover:border-brand-dark/40"
-              )}
-              data-testid="sort-by-link"
-              data-active={isActive}
-            >
-              {opt.label}
-            </button>
-          )
-        })}
-      </div>
+            {opt.label}
+          </button>
+        )
+      })}
     </div>
   )
 }

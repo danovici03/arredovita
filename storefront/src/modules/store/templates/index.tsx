@@ -54,28 +54,32 @@ const StoreTemplate = async ({
 
   return (
     <section
-      className="content-container py-12 lg:py-20"
+      className="content-container py-8 lg:py-12"
       data-testid="category-container"
     >
-      <header className="flex flex-col gap-5 mb-12 lg:mb-16 max-w-3xl">
-        <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50">
-          Catalogo
-        </span>
-        <h1
-          className="font-serif text-4xl sm:text-5xl lg:text-6xl text-brand-dark leading-[1.05]"
-          data-testid="store-page-title"
-        >
-          Tutto l'arredamento
-        </h1>
-        <p className="text-brand-dark/60 font-medium text-base sm:text-lg leading-relaxed">
-          Esplora la collezione completa firmata Arredo Vita — pezzi selezionati
-          per ogni stanza della tua casa.
-        </p>
-      </header>
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between mb-8 lg:mb-10">
+        <header className="flex flex-col gap-3 sm:gap-4 max-w-2xl">
+          <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50">
+            Catalogo
+          </span>
+          <h1
+            className="font-serif text-4xl sm:text-5xl lg:text-6xl text-brand-dark leading-[1.05]"
+            data-testid="store-page-title"
+          >
+            Tutto l'arredamento
+          </h1>
+          <p className="text-brand-dark/60 font-medium text-base leading-relaxed">
+            Esplora la collezione completa firmata Arredo Vita — pezzi
+            selezionati per ogni stanza della tua casa.
+          </p>
+        </header>
+
+        <RefinementBar sortBy={sort} className="lg:pb-2" />
+      </div>
 
       {stanze.length > 0 && (
-        <div className="mb-12 lg:mb-16">
-          <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50 mb-5">
+        <div className="mb-8 lg:mb-10">
+          <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50 mb-4">
             Sfoglia per stanza
           </h2>
           <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 lg:gap-5">
@@ -129,8 +133,6 @@ const StoreTemplate = async ({
           </ul>
         </div>
       )}
-
-      <RefinementBar sortBy={sort} />
 
       <Suspense fallback={<SkeletonProductGrid />}>
         <PaginatedProducts

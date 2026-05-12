@@ -34,17 +34,20 @@ export default function CategoryTemplate({
   }
   collectParents(category)
 
+  const directParent = parents[parents.length - 1]
+  const eyebrow = directParent ? directParent.name : "Stanza"
+
   const children = category.category_children ?? []
   const hasChildren = children.length > 0
 
   return (
     <section
-      className="content-container py-12 lg:py-20"
+      className="content-container py-8 lg:py-12"
       data-testid="category-container"
     >
       <nav
         aria-label="Breadcrumb"
-        className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/50 mb-10"
+        className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] uppercase tracking-[0.2em] font-bold text-brand-dark/50 mb-6 lg:mb-8"
       >
         <LocalizedClientLink
           href="/store"
@@ -58,7 +61,6 @@ export default function CategoryTemplate({
             <LocalizedClientLink
               href={`/categories/${parent.handle}`}
               className="hover:text-brand-dark transition-colors"
-              data-testid="sort-by-link"
             >
               {parent.name}
             </LocalizedClientLink>
@@ -70,26 +72,30 @@ export default function CategoryTemplate({
         </span>
       </nav>
 
-      <header className="flex flex-col gap-5 mb-12 lg:mb-16 max-w-3xl">
-        <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50">
-          Stanza
-        </span>
-        <h1
-          className="font-serif text-4xl sm:text-5xl lg:text-6xl text-brand-dark leading-[1.05]"
-          data-testid="category-page-title"
-        >
-          {category.name}
-        </h1>
-        {category.description && (
-          <p className="text-brand-dark/60 font-medium text-base sm:text-lg leading-relaxed">
-            {category.description}
-          </p>
-        )}
-      </header>
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between mb-8 lg:mb-10">
+        <header className="flex flex-col gap-3 sm:gap-4 max-w-2xl">
+          <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50">
+            {eyebrow}
+          </span>
+          <h1
+            className="font-serif text-4xl sm:text-5xl lg:text-6xl text-brand-dark leading-[1.05]"
+            data-testid="category-page-title"
+          >
+            {category.name}
+          </h1>
+          {category.description && (
+            <p className="text-brand-dark/60 font-medium text-base leading-relaxed">
+              {category.description}
+            </p>
+          )}
+        </header>
+
+        <RefinementBar sortBy={sort} className="lg:pb-2" />
+      </div>
 
       {hasChildren && (
-        <div className="mb-12 lg:mb-16">
-          <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50 mb-5">
+        <div className="mb-8 lg:mb-10">
+          <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-brand-dark/50 mb-4">
             Sotto-categorie
           </h2>
           <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -115,8 +121,6 @@ export default function CategoryTemplate({
           </ul>
         </div>
       )}
-
-      <RefinementBar sortBy={sort} />
 
       <Suspense
         fallback={
