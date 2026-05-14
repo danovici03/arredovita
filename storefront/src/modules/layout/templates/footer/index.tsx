@@ -26,9 +26,17 @@ export default function Footer() {
           <div className="lg:col-span-5">
             <LocalizedClientLink
               href="/"
-              className="font-serif text-6xl md:text-7xl mb-8 block hover:text-white"
+              className="inline-flex mb-8"
+              aria-label="Arredo Vita — Home"
             >
-              ARREDO VITA.
+              <img
+                src="/logo-arredo-vita-white.svg"
+                alt="Arredo Vita"
+                width={3000}
+                height={461.9}
+                className="h-14 md:h-16 w-auto select-none"
+                draggable={false}
+              />
             </LocalizedClientLink>
             <p className="text-white/60 font-medium max-w-sm mb-8">
               Il minimalismo italiano portato nel tuo spazio. Design creato per

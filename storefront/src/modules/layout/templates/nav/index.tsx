@@ -38,10 +38,18 @@ export default async function Nav() {
       </div>
       <LocalizedClientLink
         href="/"
-        className="font-serif text-2xl lg:text-3xl font-black tracking-tighter text-brand-dark uppercase hover:text-brand-dark"
+        className="flex items-center shrink-0"
         data-testid="nav-store-link"
+        aria-label="Arredo Vita — Home"
       >
-        ARREDO VITA<span className="text-brand-accent">.</span>
+        <img
+          src="/logo-arredo-vita.svg"
+          alt="Arredo Vita"
+          width={3000}
+          height={461.9}
+          className="h-9 sm:h-10 w-auto select-none"
+          draggable={false}
+        />
       </LocalizedClientLink>
     </>
   )

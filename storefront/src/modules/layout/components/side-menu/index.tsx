@@ -90,10 +90,17 @@ const SideMenu = ({
                   <LocalizedClientLink
                     href="/"
                     onClick={close}
-                    className="font-serif text-2xl font-black tracking-tighter uppercase text-brand-dark hover:text-brand-dark"
+                    className="flex items-center"
+                    aria-label="Arredo Vita — Home"
                   >
-                    ARREDO VITA
-                    <span className="text-brand-accent">.</span>
+                    <img
+                      src="/logo-arredo-vita.svg"
+                      alt="Arredo Vita"
+                      width={3000}
+                      height={461.9}
+                      className="h-8 w-auto select-none"
+                      draggable={false}
+                    />
                   </LocalizedClientLink>
                   <button
                     type="button"
