@@ -36,7 +36,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         className="content-container py-6 lg:py-12"
         data-testid="product-container"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           <div className="lg:col-span-7 flex flex-col gap-8">
             <ImageGallery product={product} />
             <ProductHighlights product={product} />
