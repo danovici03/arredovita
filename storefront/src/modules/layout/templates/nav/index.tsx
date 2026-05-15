@@ -47,7 +47,7 @@ export default async function Nav() {
           alt="Arredo Vita"
           width={3233}
           height={568}
-          className="h-11 sm:h-12 w-auto select-none"
+          className="h-[var(--logo-h,2.5rem)] w-auto select-none"
           draggable={false}
         />
       </LocalizedClientLink>

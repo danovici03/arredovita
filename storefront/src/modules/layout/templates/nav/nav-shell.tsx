@@ -60,7 +60,7 @@ const NavShell = ({ left, center, right }: Props) => {
       <nav
         aria-hidden={scrolled}
         style={fadeStyle(!scrolled)}
-        className="absolute inset-x-0 top-0 w-full h-20 px-4 sm:px-8 flex items-center bg-white border-b border-brand-dark/5"
+        className="absolute inset-x-0 top-0 w-full h-20 px-4 sm:px-8 flex items-center bg-white border-b border-brand-dark/5 [--logo-h:4rem]"
       >
         <div className="w-full max-w-[1920px] mx-auto flex items-center justify-between">
           {Inner}
@@ -71,7 +71,7 @@ const NavShell = ({ left, center, right }: Props) => {
       <nav
         aria-hidden={!scrolled}
         style={fadeStyle(scrolled)}
-        className="absolute left-1/2 -translate-x-1/2 top-3 w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] max-w-6xl h-14 px-6 sm:px-8 flex items-center justify-between bg-white/85 backdrop-blur-md border border-white/60 rounded-full shadow-xl"
+        className="absolute left-1/2 -translate-x-1/2 top-3 w-[calc(100%-2rem)] sm:w-[calc(100%-4rem)] max-w-6xl h-14 px-6 sm:px-8 flex items-center justify-between bg-white/85 backdrop-blur-md border border-white/60 rounded-full shadow-xl [--logo-h:2.25rem]"
       >
         {Inner}
       </nav>
