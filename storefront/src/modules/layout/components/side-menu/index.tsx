@@ -96,9 +96,9 @@ const SideMenu = ({
                     <img
                       src="/logo-arredo-vita.svg"
                       alt="Arredo Vita"
-                      width={3000}
-                      height={461.9}
-                      className="h-8 w-auto select-none"
+                      width={3233}
+                      height={568}
+                      className="h-9 w-auto select-none"
                       draggable={false}
                     />
                   </LocalizedClientLink>

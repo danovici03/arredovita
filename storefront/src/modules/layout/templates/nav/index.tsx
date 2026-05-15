@@ -45,9 +45,9 @@ export default async function Nav() {
         <img
           src="/logo-arredo-vita.svg"
           alt="Arredo Vita"
-          width={3000}
-          height={461.9}
-          className="h-9 sm:h-10 w-auto select-none"
+          width={3233}
+          height={568}
+          className="h-11 sm:h-12 w-auto select-none"
           draggable={false}
         />
       </LocalizedClientLink>
