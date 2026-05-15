@@ -60,7 +60,7 @@ const NavShell = ({ left, center, right }: Props) => {
       <nav
         aria-hidden={scrolled}
         style={fadeStyle(!scrolled)}
-        className="absolute inset-x-0 top-0 w-full h-20 px-4 sm:px-8 flex items-center bg-white border-b border-brand-dark/5 [--logo-h:4rem]"
+        className="absolute inset-x-0 top-0 w-full h-20 px-4 sm:px-8 flex items-center bg-white border-b border-brand-dark/5 [--logo-h:2.5rem] sm:[--logo-h:4rem]"
       >
         <div className="w-full max-w-[1920px] mx-auto flex items-center justify-between">
           {Inner}
