@@ -1,4 +1,8 @@
 import { getProductPrice } from "@lib/util/get-product-price"
+import {
+  SHOWROOM_BADGE_LABEL,
+  isShowroomProduct,
+} from "@lib/util/showroom"
 import { HttpTypes } from "@medusajs/types"
 import { Star } from "@phosphor-icons/react/dist/ssr"
 import Image from "next/image"
@@ -6,6 +10,7 @@ import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 const getBadge = (product: HttpTypes.StoreProduct): string | null => {
+  if (isShowroomProduct(product)) return SHOWROOM_BADGE_LABEL
   const tags = (product.tags ?? []).map((t) => t.value?.toLowerCase() ?? "")
   if (tags.includes("new") || tags.includes("nuovo")) return "Nuovo"
   if (tags.includes("bestseller") || tags.includes("best-seller"))

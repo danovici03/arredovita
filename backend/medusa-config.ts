@@ -42,6 +42,9 @@ const modules: any[] = [
       providers: [fileProvider],
     },
   },
+  {
+    resolve: './src/modules/faq',
+  },
 ]
 
 if (redisUrl) {

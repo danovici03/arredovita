@@ -1,6 +1,10 @@
 import { Text } from "@medusajs/ui"
 import { listProducts } from "@lib/data/products"
 import { getProductPrice } from "@lib/util/get-product-price"
+import {
+  SHOWROOM_BADGE_LABEL,
+  isShowroomProduct,
+} from "@lib/util/showroom"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "../thumbnail"
@@ -28,15 +32,24 @@ export default async function ProductPreview({
     product,
   })
 
+  const showroom = isShowroomProduct(product)
+
   return (
     <LocalizedClientLink href={`/products/${product.handle}`} className="group">
       <div data-testid="product-wrapper">
-        <Thumbnail
-          thumbnail={product.thumbnail}
-          images={product.images}
-          size="full"
-          isFeatured={isFeatured}
-        />
+        <div className="relative">
+          <Thumbnail
+            thumbnail={product.thumbnail}
+            images={product.images}
+            size="full"
+            isFeatured={isFeatured}
+          />
+          {showroom && (
+            <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white text-[10px] font-bold uppercase tracking-widest text-brand-dark shadow-sm">
+              {SHOWROOM_BADGE_LABEL}
+            </span>
+          )}
+        </div>
         <div className="flex txt-compact-medium mt-4 justify-between">
           <Text className="text-ui-fg-subtle" data-testid="product-title">
             {product.title}

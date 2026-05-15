@@ -3,6 +3,7 @@ import {
   InstagramLogo,
   PinterestLogo,
 } from "@phosphor-icons/react/dist/ssr"
+import { COMPANY } from "@lib/util/company-info"
 
 const SHOP_LINKS = [
   { label: "Tutti i Prodotti", href: "/store" },
@@ -12,10 +13,19 @@ const SHOP_LINKS = [
 ]
 
 const SUPPORT_LINKS = [
-  { label: "Contatti", href: "/contact" },
+  { label: "Servizio Clienti", href: "/assistenza" },
+  { label: "Contatti", href: "/contatti" },
   { label: "Domande Frequenti (FAQ)", href: "/faq" },
-  { label: "Spedizione & Resi", href: "/shipping-returns" },
-  { label: "Garanzia", href: "/warranty" },
+  { label: "Spedizioni e consegna", href: "/spedizioni" },
+  { label: "Resi e recesso", href: "/resi" },
+  { label: "Garanzia", href: "/garanzia" },
+]
+
+const LEGAL_LINKS = [
+  { label: "Termini e Condizioni", href: "/termini" },
+  { label: "Informativa sulla Privacy", href: "/privacy" },
+  { label: "Cookie Policy", href: "/cookie" },
+  { label: "Note legali", href: "/note-legali" },
 ]
 
 export default function Footer() {
@@ -23,7 +33,7 @@ export default function Footer() {
     <footer className="bg-brand-dark text-white pt-24 pb-8 rounded-t-[3rem] mt-24">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-20">
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-4">
             <LocalizedClientLink
               href="/"
               className="inline-flex mb-8"
@@ -45,14 +55,18 @@ export default function Footer() {
 
             <div className="flex gap-4">
               <a
-                href="#"
+                href={COMPANY.social.instagram}
+                target="_blank"
+                rel="noreferrer"
                 aria-label="Instagram"
                 className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-brand-dark transition-colors"
               >
                 <InstagramLogo size={22} />
               </a>
               <a
-                href="#"
+                href={COMPANY.social.pinterest}
+                target="_blank"
+                rel="noreferrer"
                 aria-label="Pinterest"
                 className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-brand-dark transition-colors"
               >
@@ -61,7 +75,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="lg:col-span-2 lg:col-start-7">
+          <div className="lg:col-span-2">
             <h4 className="font-bold mb-6 text-white/50 uppercase tracking-widest text-xs">
               Negozio
             </h4>
@@ -79,9 +93,9 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <h4 className="font-bold mb-6 text-white/50 uppercase tracking-widest text-xs">
-              Supporto
+              Servizio Clienti
             </h4>
             <ul className="space-y-4 font-bold text-sm">
               {SUPPORT_LINKS.map((link) => (
@@ -114,27 +128,36 @@ export default function Footer() {
                 Iscriviti
               </button>
             </form>
+            <p className="text-xs text-white/40 mt-3 leading-relaxed">
+              Iscrivendoti accetti l&apos;
+              <LocalizedClientLink
+                href="/privacy"
+                className="underline hover:text-white"
+              >
+                informativa privacy
+              </LocalizedClientLink>
+              .
+            </p>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-xs font-medium text-white/40">
-          <p>
-            &copy; {new Date().getFullYear()} Arredo Vita. Tutti i diritti
-            riservati.
-          </p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <LocalizedClientLink
-              href="/terms"
-              className="hover:text-white transition-colors"
-            >
-              Termini e Condizioni
-            </LocalizedClientLink>
-            <LocalizedClientLink
-              href="/privacy"
-              className="hover:text-white transition-colors"
-            >
-              Informativa sulla Privacy
-            </LocalizedClientLink>
+        <div className="pt-8 border-t border-white/10 flex flex-col gap-6 text-xs font-medium text-white/40">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <p>
+              &copy; {new Date().getFullYear()} {COMPANY.ragioneSociale} — P.IVA{" "}
+              {COMPANY.piva} — REA {COMPANY.rea}. Tutti i diritti riservati.
+            </p>
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              {LEGAL_LINKS.map((link) => (
+                <LocalizedClientLink
+                  key={link.href}
+                  href={link.href}
+                  className="hover:text-white transition-colors"
+                >
+                  {link.label}
+                </LocalizedClientLink>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,10 @@
 "use client"
 
 import { getProductPrice } from "@lib/util/get-product-price"
+import {
+  SHOWROOM_BADGE_LABEL,
+  isShowroomProduct,
+} from "@lib/util/showroom"
 import { HttpTypes } from "@medusajs/types"
 import { clx } from "@medusajs/ui"
 import { ArrowLeft, ArrowRight, Star } from "@phosphor-icons/react/dist/ssr"
@@ -20,6 +24,7 @@ type BestSellersTabsProps = {
 }
 
 const getBadge = (product: HttpTypes.StoreProduct): string | null => {
+  if (isShowroomProduct(product)) return SHOWROOM_BADGE_LABEL
   const tags = (product.tags ?? []).map((t) => t.value?.toLowerCase() ?? "")
   if (tags.includes("new") || tags.includes("nuovo")) return "Nuovo"
   if (tags.includes("bestseller") || tags.includes("best-seller"))

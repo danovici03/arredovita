@@ -79,5 +79,6 @@ export const MEGA_MENU: MegaMenuRoot[] = [
 
 export const FLAT_LINKS: FlatLink[] = [
   { key: "catalogo", label: "Catalogo", href: "/store" },
-  { key: "contatti", label: "Contatti", href: "/contact" },
+  { key: "assistenza", label: "Assistenza", href: "/assistenza" },
+  { key: "contatti", label: "Contatti", href: "/contatti" },
 ]
