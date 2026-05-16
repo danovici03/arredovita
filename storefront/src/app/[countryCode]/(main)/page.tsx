@@ -28,7 +28,7 @@ export default async function Home(props: {
     <>
       <Hero />
       <Rooms />
-      <IconicProducts />
+      <IconicProducts countryCode={countryCode} />
       <BestSellers countryCode={countryCode} />
     </>
   )

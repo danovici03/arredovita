@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useEffect, useRef } from "react"
 
 import { unsplashLoader } from "@lib/util/unsplash-loader"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type Room = {
   href: string
@@ -182,12 +183,12 @@ const Rooms = () => {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onClickCapture={onClickCapture}
-        className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x -mx-4 px-4 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing select-none"
+        className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x -mx-4 px-4 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing select-none touch-pan-x overscroll-x-contain"
       >
         {ROOMS.map((room, index) => {
           const isDark = room.variant === "dark"
           return (
-            <a
+            <LocalizedClientLink
               key={room.href}
               href={room.href}
               draggable={false}
@@ -258,7 +259,7 @@ const Rooms = () => {
                   </div>
                 </>
               )}
-            </a>
+            </LocalizedClientLink>
           )
         })}
       </div>

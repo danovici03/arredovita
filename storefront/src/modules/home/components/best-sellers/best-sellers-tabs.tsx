@@ -161,7 +161,7 @@ const BestSellersTabs = ({ tabs }: BestSellersTabsProps) => {
             Più venduti
           </h2>
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar touch-pan-x overscroll-x-contain">
               {tabs.map((tab) => {
                 const isActive = tab.id === active?.id
                 return (
@@ -204,7 +204,7 @@ const BestSellersTabs = ({ tabs }: BestSellersTabsProps) => {
 
         <div
           ref={scrollerRef}
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 no-scrollbar"
+          className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 no-scrollbar touch-pan-x overscroll-x-contain"
           style={{ scrollPadding: "0 1rem" }}
         >
           {active?.products.map((p) => (

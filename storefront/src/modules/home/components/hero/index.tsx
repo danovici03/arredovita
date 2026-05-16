@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
 import { unsplashLoader } from "@lib/util/unsplash-loader"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 type Slide = {
   image: string
@@ -12,8 +13,10 @@ type Slide = {
   titleLine1: string
   titleLine2: string
   cta: string
+  href: string
 }
 
+// TODO: replace Unsplash placeholders with real Arredovita imagery in S3.
 const SLIDES: Slide[] = [
   {
     image:
@@ -22,6 +25,7 @@ const SLIDES: Slide[] = [
     titleLine1: "VIVI UN'ELEGANZA",
     titleLine2: "SENZA PARAGONI",
     cta: "Esplora la Collezione",
+    href: "/store",
   },
   {
     image:
@@ -30,6 +34,7 @@ const SLIDES: Slide[] = [
     titleLine1: "IL TUO RIFUGIO",
     titleLine2: "DI PACE QUOTIDIANO",
     cta: "Scopri Linea Notte",
+    href: "/categories/camera-da-letto",
   },
   {
     image:
@@ -38,6 +43,7 @@ const SLIDES: Slide[] = [
     titleLine1: "FORME PURE E",
     titleLine2: "DESIGN FUNZIONALE",
     cta: "Acquista Ora",
+    href: "/categories/soggiorno",
   },
 ]
 
@@ -192,7 +198,7 @@ const Hero = () => {
       <div className="relative w-full">
         <div
           ref={sliderRef}
-          className="snap-container flex gap-4 sm:gap-6 px-[7vw] lg:px-[14vw] overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+          className="snap-container flex gap-4 sm:gap-6 px-[7vw] lg:px-[14vw] overflow-x-auto snap-x snap-mandatory hide-scrollbar touch-pan-x overscroll-x-contain"
         >
           {EXTENDED.map((slide, index) => {
             const isClone = index === 0 || index === EXTENDED.length - 1
@@ -225,13 +231,14 @@ const Hero = () => {
                     {slide.titleLine2}
                   </h2>
                   <div>
-                    <button
-                      type="button"
+                    <LocalizedClientLink
+                      href={slide.href}
                       tabIndex={isClone ? -1 : 0}
-                      className="bg-white text-brand-dark px-8 py-4 rounded-full text-sm font-bold hover:bg-brand-accent hover:text-white transition-all duration-300 transform hover:scale-105"
+                      aria-hidden={isClone}
+                      className="inline-block bg-white text-brand-dark px-8 py-4 rounded-full text-sm font-bold hover:bg-brand-accent hover:text-white transition-all duration-300 transform hover:scale-105"
                     >
                       {slide.cta}
-                    </button>
+                    </LocalizedClientLink>
                   </div>
                 </div>
 
