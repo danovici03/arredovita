@@ -113,25 +113,54 @@ const layout = ({ heading, bodyHtml, preheader, storefrontUrl }: LayoutInput) =>
 const greeting = (firstName?: string) =>
   firstName ? `<p style="margin:0 0 16px;">Ciao ${escape(firstName)},</p>` : ""
 
-const renderOrderItems = (items: any[] | undefined) => {
+const productUrlFor = (item: any, storefrontUrl?: string) => {
+  const handle = item.product_handle || item.variant?.product?.handle
+  if (!handle) return null
+  return `${resolveStorefrontUrl(storefrontUrl)}/it/products/${handle}`
+}
+
+const thumbnailImg = (item: any) => {
+  const alt = escape(item.product_title || item.title || "")
+  if (item.thumbnail) {
+    return `<img src="${escape(item.thumbnail)}" width="56" height="56" alt="${alt}" style="display:block;width:56px;height:56px;border:0;outline:none;text-decoration:none;border-radius:10px;background:${COLOR.light};object-fit:cover;">`
+  }
+  return `<div style="width:56px;height:56px;border-radius:10px;background:${COLOR.light};"></div>`
+}
+
+const renderOrderItems = (
+  items: any[] | undefined,
+  storefrontUrl?: string
+) => {
   if (!items?.length) return ""
   const rows = items
-    .map(
-      (i) => `
+    .map((i) => {
+      const href = productUrlFor(i, storefrontUrl)
+      const thumb = thumbnailImg(i)
+      const thumbCell = href
+        ? `<a href="${escape(href)}" style="display:block;text-decoration:none;">${thumb}</a>`
+        : thumb
+      const title = escape(i.product_title || i.title || "")
+      const titleEl = href
+        ? `<a href="${escape(href)}" style="color:${COLOR.dark};text-decoration:none;font-weight:600;">${title}</a>`
+        : `<strong style="color:${COLOR.dark};">${title}</strong>`
+      return `
       <tr>
-        <td style="padding:12px 0;border-bottom:1px solid ${COLOR.border};">
-          <strong style="color:${COLOR.dark};">${escape(i.product_title || i.title)}</strong>
-          ${i.variant_title ? `<br><span style="color:${COLOR.muted};font-size:13px;">${escape(i.variant_title)}</span>` : ""}
+        <td valign="top" style="padding:14px 0;border-bottom:1px solid ${COLOR.border};width:72px;">
+          ${thumbCell}
         </td>
-        <td style="padding:12px 0;border-bottom:1px solid ${COLOR.border};text-align:center;color:${COLOR.muted};">${i.quantity}</td>
-        <td style="padding:12px 0;border-bottom:1px solid ${COLOR.border};text-align:right;font-variant-numeric:tabular-nums;color:${COLOR.dark};">${money(i.total, i.currency_code)}</td>
+        <td valign="top" style="padding:14px 0 14px 14px;border-bottom:1px solid ${COLOR.border};">
+          <span style="font-size:14px;line-height:1.4;">${titleEl}</span>
+          ${i.variant_title ? `<br><span style="color:${COLOR.muted};font-size:13px;line-height:1.5;">${escape(i.variant_title)}</span>` : ""}
+        </td>
+        <td valign="top" style="padding:14px 0;border-bottom:1px solid ${COLOR.border};text-align:center;color:${COLOR.muted};font-size:14px;">${i.quantity}</td>
+        <td valign="top" style="padding:14px 0;border-bottom:1px solid ${COLOR.border};text-align:right;font-variant-numeric:tabular-nums;color:${COLOR.dark};font-size:14px;">${money(i.total, i.currency_code)}</td>
       </tr>`
-    )
+    })
     .join("")
   return `
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 8px;font-size:14px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 8px;font-size:14px;border-collapse:collapse;">
       <thead><tr>
-        <th align="left" style="padding:8px 0;border-bottom:2px solid ${COLOR.dark};font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${COLOR.muted};font-weight:600;">Prodotto</th>
+        <th colspan="2" align="left" style="padding:8px 0;border-bottom:2px solid ${COLOR.dark};font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${COLOR.muted};font-weight:600;">Prodotto</th>
         <th style="padding:8px 0;border-bottom:2px solid ${COLOR.dark};font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${COLOR.muted};font-weight:600;">Q.tà</th>
         <th align="right" style="padding:8px 0;border-bottom:2px solid ${COLOR.dark};font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${COLOR.muted};font-weight:600;">Totale</th>
       </tr></thead>
@@ -146,7 +175,7 @@ const orderPlacedCustomer: Renderer = ({ order, storefront_url }) => {
   const body = `
     ${greeting(firstName)}
     <p style="margin:0 0 16px;">grazie per il tuo ordine <strong>#${escape(display)}</strong>. Lo abbiamo ricevuto correttamente e lo stiamo preparando.</p>
-    ${renderOrderItems(order.items)}
+    ${renderOrderItems(order.items, storefront_url)}
     <p style="margin:16px 0;font-size:16px;"><strong>Totale: ${money(order.total, order.currency_code)}</strong></p>
     ${button(orderUrl, "Vedi il tuo ordine")}
     <p style="margin:16px 0 0;color:${COLOR.muted};">Ti scriveremo di nuovo non appena la spedizione partirà.</p>`
@@ -172,7 +201,7 @@ const orderPlacedAdmin: Renderer = ({ order, admin_url, storefront_url }) => {
       <li>Articoli: ${order.items?.length ?? 0}</li>
       ${order.shipping_address ? `<li>Spedizione: ${escape(order.shipping_address.first_name)} ${escape(order.shipping_address.last_name)} — ${escape(order.shipping_address.city)}, ${escape(order.shipping_address.country_code)}</li>` : ""}
     </ul>
-    ${renderOrderItems(order.items)}
+    ${renderOrderItems(order.items, storefront_url)}
     ${adminLink ? button(adminLink, "Apri l'ordine in admin") : ""}`
   return {
     subject: `[${BRAND}] Nuovo ordine #${display} — ${money(order.total, order.currency_code)}`,
@@ -351,7 +380,7 @@ const orderCanceledCustomer: Renderer = ({ order, storefront_url }) => {
     ${greeting(firstName)}
     <p style="margin:0 0 12px;">ti confermiamo che il tuo ordine <strong>#${escape(display)}</strong> è stato annullato.</p>
     <p style="margin:0 0 12px;">Se avevi già effettuato il pagamento, l'importo di <strong>${money(order.total, order.currency_code)}</strong> verrà rimborsato sul metodo di pagamento originale entro 5–10 giorni lavorativi.</p>
-    ${renderOrderItems(order.items)}
+    ${renderOrderItems(order.items, storefront_url)}
     ${button(orderUrl, "Vedi i dettagli dell'ordine")}
     <p style="margin:16px 0 0;font-size:13px;color:${COLOR.muted};">Se non hai richiesto tu l'annullamento o vuoi capire cosa è successo, scrivi a <a href="mailto:${SUPPORT_EMAIL}" style="color:${COLOR.accent};">${SUPPORT_EMAIL}</a>.</p>`
   return {
