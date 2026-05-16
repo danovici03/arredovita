@@ -11,6 +11,7 @@ const KNOWN_TAGS = new Set([
   "regions",
   "locales",
   "best-sellers",
+  "faq",
 ])
 
 export async function POST(request: NextRequest) {
