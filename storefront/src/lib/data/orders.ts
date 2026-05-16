@@ -60,6 +60,33 @@ export const listOrders = async (
     .catch((err) => medusaError(err))
 }
 
+// Same as listOrders but returns the full paginated envelope (orders, count,
+// offset, limit) so the orders list page can render page controls.
+export const listOrdersPaginated = async (
+  limit: number = 12,
+  offset: number = 0,
+  filters?: Record<string, any>,
+) => {
+  const headers = { ...(await getAuthHeaders()) }
+  const next = { ...(await getCacheOptions("orders")) }
+
+  return sdk.client
+    .fetch<HttpTypes.StoreOrderListResponse>(`/store/orders`, {
+      method: "GET",
+      query: {
+        limit,
+        offset,
+        order: "-created_at",
+        fields: "*items,+items.metadata,*items.variant,*items.product",
+        ...filters,
+      },
+      headers,
+      next,
+      cache: "force-cache",
+    })
+    .catch((err) => medusaError(err))
+}
+
 export const createTransferRequest = async (
   state: {
     success: boolean

@@ -61,11 +61,18 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
 
 export async function signup(_currentState: unknown, formData: FormData) {
   const password = formData.get("password") as string
-  const customerForm = {
+  const marketingOptIn = formData.get("marketing_opt_in") === "on"
+  const customerForm: HttpTypes.StoreCreateCustomer = {
     email: formData.get("email") as string,
     first_name: formData.get("first_name") as string,
     last_name: formData.get("last_name") as string,
-    phone: formData.get("phone") as string,
+    phone: (formData.get("phone") as string) || undefined,
+    metadata: {
+      preferences: {
+        marketing: marketingOptIn,
+        consent_at: new Date().toISOString(),
+      },
+    },
   }
 
   try {
@@ -101,6 +108,140 @@ export async function signup(_currentState: unknown, formData: FormData) {
     return createdCustomer
   } catch (error: any) {
     return error.toString()
+  }
+}
+
+// Triggers Medusa's reset-password workflow which emits `auth.password_reset`.
+// Always succeeds at the API level — Medusa intentionally doesn't reveal
+// whether the email is registered, so we mirror that with a generic UI message.
+export async function requestPasswordReset(
+  _currentState: unknown,
+  formData: FormData,
+) {
+  const email = formData.get("email") as string
+  if (!email) return { ok: false, message: "Email obbligatoria" }
+
+  try {
+    await sdk.client.fetch("/auth/customer/emailpass/reset-password", {
+      method: "POST",
+      body: { identifier: email },
+    })
+  } catch {
+    // swallow — never reveal whether the email exists
+  }
+  return { ok: true, message: null as string | null }
+}
+
+// Updates customer.metadata.preferences while preserving any other metadata
+// already on the customer (e.g. the consent_at timestamp set at signup).
+export async function updatePreferences(
+  _currentState: unknown,
+  formData: FormData,
+) {
+  const marketing = formData.get("marketing") === "on"
+  const sms = formData.get("sms") === "on"
+
+  const customer = await retrieveCustomer().catch(() => null)
+  const existingMeta = (customer?.metadata ?? {}) as Record<string, unknown>
+  const existingPrefs =
+    (existingMeta.preferences as Record<string, unknown> | undefined) ?? {}
+
+  try {
+    await updateCustomer({
+      metadata: {
+        ...existingMeta,
+        preferences: {
+          ...existingPrefs,
+          marketing,
+          sms,
+          updated_at: new Date().toISOString(),
+        },
+      },
+    })
+    return { ok: true, message: null as string | null }
+  } catch (e: any) {
+    return { ok: false, message: e?.toString?.() ?? "error" }
+  }
+}
+
+// Used by the public reset-password page reached from the email link.
+// The token from the email is used as the Authorization bearer for the update call.
+export async function resetPassword(
+  _currentState: unknown,
+  formData: FormData,
+) {
+  const token = formData.get("token") as string
+  const password = formData.get("password") as string
+  const confirm = formData.get("confirm_password") as string
+
+  if (!token) return { ok: false, message: "reset_invalid_token" }
+  if (!password || password.length < 8)
+    return { ok: false, message: "reset_password_short" }
+  if (password !== confirm)
+    return { ok: false, message: "reset_password_mismatch" }
+
+  try {
+    await sdk.client.fetch("/auth/customer/emailpass/update", {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}` },
+      body: { password },
+    })
+    return { ok: true, message: null as string | null }
+  } catch (e: any) {
+    return { ok: false, message: "reset_invalid_token" }
+  }
+}
+
+// Used by the logged-in profile page. Re-verifies the old password via a
+// login attempt first so we don't allow stealth password changes if a session
+// is hijacked.
+export async function updatePassword(
+  _currentState: unknown,
+  formData: FormData,
+) {
+  const oldPassword = formData.get("old_password") as string
+  const newPassword = formData.get("new_password") as string
+  const confirm = formData.get("confirm_password") as string
+
+  if (!oldPassword || !newPassword)
+    return { ok: false, message: "password_required" }
+  if (newPassword.length < 8)
+    return { ok: false, message: "password_too_short" }
+  if (newPassword !== confirm)
+    return { ok: false, message: "password_mismatch" }
+
+  const customer = await retrieveCustomer().catch(() => null)
+  if (!customer?.email) return { ok: false, message: "password_unauthenticated" }
+
+  // Verify the old password by attempting a login.
+  let verifyToken: string | undefined
+  try {
+    verifyToken = (await sdk.auth.login("customer", "emailpass", {
+      email: customer.email,
+      password: oldPassword,
+    })) as string
+  } catch {
+    return { ok: false, message: "password_old_invalid" }
+  }
+  if (!verifyToken)
+    return { ok: false, message: "password_old_invalid" }
+
+  try {
+    await sdk.client.fetch("/auth/customer/emailpass/update", {
+      method: "POST",
+      headers: { authorization: `Bearer ${verifyToken}` },
+      body: { password: newPassword },
+    })
+
+    // Re-issue the session cookie with a fresh login on the new password.
+    const sessionToken = (await sdk.auth.login("customer", "emailpass", {
+      email: customer.email,
+      password: newPassword,
+    })) as string
+    await setAuthToken(sessionToken)
+    return { ok: true, message: null as string | null }
+  } catch {
+    return { ok: false, message: "password_update_failed" }
   }
 }
 
@@ -194,6 +335,20 @@ export const addCustomerAddress = async (
     .catch((err) => {
       return { success: false, error: err.toString() }
     })
+}
+
+export const setDefaultShippingAddress = async (
+  addressId: string,
+): Promise<{ success: boolean; error: string | null }> => {
+  const headers = { ...(await getAuthHeaders()) }
+  return sdk.store.customer
+    .updateAddress(addressId, { is_default_shipping: true }, {}, headers)
+    .then(async () => {
+      const customerCacheTag = await getCacheTag("customers")
+      revalidateTag(customerCacheTag)
+      return { success: true, error: null }
+    })
+    .catch((err) => ({ success: false, error: err.toString() }))
 }
 
 export const deleteCustomerAddress = async (

@@ -1,74 +1,36 @@
 "use client"
 
-import React, { useEffect, useActionState } from "react";
-
-import Input from "@modules/common/components/input"
+import React from "react"
 
 import AccountInfo from "../account-info"
 import { HttpTypes } from "@medusajs/types"
-// import { updateCustomer } from "@lib/data/customer"
+import { account as t } from "@lib/i18n/account.it"
 
 type MyInformationProps = {
   customer: HttpTypes.StoreCustomer
 }
 
+// Email change is intentionally read-only: in Medusa it requires re-binding
+// the auth identity, which the store endpoint doesn't expose. We surface a
+// hint pointing customers to support.
 const ProfileEmail: React.FC<MyInformationProps> = ({ customer }) => {
-  const [successState, setSuccessState] = React.useState(false)
-
-  // TODO: It seems we don't support updating emails now?
-  const updateCustomerEmail = (
-    _currentState: Record<string, unknown>,
-    formData: FormData
-  ) => {
-    const customer = {
-      email: formData.get("email") as string,
-    }
-
-    try {
-      // await updateCustomer(customer)
-      return { success: true, error: null }
-    } catch (error: any) {
-      return { success: false, error: error.toString() }
-    }
-  }
-
-  const [state, formAction] = useActionState(updateCustomerEmail, {
-    error: false,
-    success: false,
-  })
-
-  const clearState = () => {
-    setSuccessState(false)
-  }
-
-  useEffect(() => {
-    setSuccessState(state.success)
-  }, [state])
-
   return (
-    <form action={formAction} className="w-full">
+    <div className="w-full">
       <AccountInfo
-        label="Email"
-        currentInfo={`${customer.email}`}
-        isSuccess={successState}
-        isError={!!state.error}
-        errorMessage={state.error}
-        clearState={clearState}
+        label={t.profile.emailLabel}
+        currentInfo={
+          <div className="flex flex-col gap-1">
+            <span className="font-medium">{customer.email}</span>
+            <span className="text-xs text-brand-dark/50">
+              {t.profile.emailReadonlyHint}
+            </span>
+          </div>
+        }
+        clearState={() => undefined}
+        readOnly
         data-testid="account-email-editor"
-      >
-        <div className="grid grid-cols-1 gap-y-2">
-          <Input
-            label="Email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            defaultValue={customer.email}
-            data-testid="email-input"
-          />
-        </div>
-      </AccountInfo>
-    </form>
+      />
+    </div>
   )
 }
 
