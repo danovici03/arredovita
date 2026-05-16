@@ -27,7 +27,8 @@
     "@medusajs/cli": "2.13.6",
     "@medusajs/framework": "2.13.6",
     "@medusajs/medusa": "2.13.6",
-    "csv-parse": "^6.2.1"
+    "csv-parse": "^6.2.1",
+    "resend": "^6.12.3"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.6",
