@@ -8,7 +8,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr"
 import InfoPageLayout from "@modules/assistenza/components/info-page-layout"
 import ContattiForm from "@modules/assistenza/components/contatti-form"
-import { COMPANY, indirizzoCompleto } from "@lib/util/company-info"
+import { COMPANY, indirizzoOperativo, indirizzoLegale } from "@lib/util/company-info"
 
 export const metadata: Metadata = {
   title: "Contatti | Arredo Vita",
@@ -104,7 +104,26 @@ export default function ContattiPage() {
 
           <div className="rounded-3xl bg-brand-dark/[0.03] p-6">
             <h3 className="text-lg font-bold text-brand-dark mb-4">
-              Sede legale
+              Punto vendita
+            </h3>
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white text-brand-dark flex items-center justify-center shrink-0">
+                <MapPin size={22} weight="duotone" />
+              </div>
+              <div>
+                <p className="font-semibold text-brand-dark">
+                  {COMPANY.marchio}
+                </p>
+                <p className="text-sm text-brand-dark/70 mt-1">
+                  {indirizzoOperativo()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl bg-brand-dark/[0.03] p-6">
+            <h3 className="text-lg font-bold text-brand-dark mb-4">
+              Dati societari
             </h3>
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-white text-brand-dark flex items-center justify-center shrink-0">
@@ -115,7 +134,7 @@ export default function ContattiPage() {
                   {COMPANY.ragioneSociale}
                 </p>
                 <p className="text-sm text-brand-dark/70 mt-1">
-                  {indirizzoCompleto()}
+                  Sede legale: {indirizzoLegale()}
                 </p>
                 <p className="text-xs text-brand-dark/50 mt-2">
                   P.IVA {COMPANY.piva} — REA {COMPANY.rea}

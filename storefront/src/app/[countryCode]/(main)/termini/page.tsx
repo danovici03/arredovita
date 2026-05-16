@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import InfoPageLayout from "@modules/assistenza/components/info-page-layout"
-import { COMPANY, indirizzoCompleto } from "@lib/util/company-info"
+import { COMPANY, indirizzoLegale } from "@lib/util/company-info"
 
 export const metadata: Metadata = {
   title: "Termini e Condizioni di Vendita | Arredo Vita",
@@ -25,7 +25,7 @@ export default function TerminiPage() {
       <p>
         Il presente sito è gestito da <strong>{COMPANY.ragioneSociale}</strong>{" "}
         (di seguito il &laquo;Venditore&raquo; o &laquo;noi&raquo;), con sede
-        legale in {indirizzoCompleto()}, P.IVA e Codice Fiscale{" "}
+        legale in {indirizzoLegale()}, P.IVA e Codice Fiscale{" "}
         {COMPANY.piva}, iscrizione REA {COMPANY.rea}, capitale sociale{" "}
         {COMPANY.capitaleSociale}, indirizzo email{" "}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>, PEC{" "}

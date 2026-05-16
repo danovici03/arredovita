@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import InfoPageLayout from "@modules/assistenza/components/info-page-layout"
-import { COMPANY, indirizzoCompleto } from "@lib/util/company-info"
+import { COMPANY, indirizzoLegale, indirizzoOperativo } from "@lib/util/company-info"
 
 export const metadata: Metadata = {
   title: "Note legali | Arredo Vita",
@@ -29,8 +29,16 @@ export default function NoteLegaliPage() {
         <p className="font-bold text-brand-dark text-lg mb-2">
           {COMPANY.ragioneSociale}
         </p>
-        <p className="text-brand-dark/80 mb-1">{indirizzoCompleto()}</p>
+        <p className="text-brand-dark/80 mb-1">
+          <strong>Sede legale:</strong> {indirizzoLegale()}
+        </p>
+        <p className="text-brand-dark/80 mb-1">
+          <strong>Sede operativa:</strong> {indirizzoOperativo()}
+        </p>
         <ul className="text-sm text-brand-dark/70 space-y-1 mt-3">
+          <li>
+            <strong>Forma giuridica</strong>: {COMPANY.formaGiuridica}
+          </li>
           <li>
             <strong>P.IVA / Codice Fiscale</strong>: {COMPANY.piva}
           </li>
@@ -39,6 +47,9 @@ export default function NoteLegaliPage() {
           </li>
           <li>
             <strong>Capitale sociale</strong>: {COMPANY.capitaleSociale}
+          </li>
+          <li>
+            <strong>Amministratore Unico</strong>: {COMPANY.amministratoreUnico}
           </li>
           <li>
             <strong>Email</strong>:{" "}

@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import InfoPageLayout from "@modules/assistenza/components/info-page-layout"
-import { COMPANY, indirizzoCompleto } from "@lib/util/company-info"
+import { COMPANY, indirizzoOperativo } from "@lib/util/company-info"
 
 export const metadata: Metadata = {
   title: "Resi e diritto di recesso | Arredo Vita",
@@ -130,8 +130,8 @@ export default function ResiPage() {
       </p>
 
       <div className="not-prose rounded-3xl bg-brand-dark/[0.03] p-6 my-6 font-mono text-sm whitespace-pre-wrap text-brand-dark/80 leading-relaxed">
-        {`Destinatario: ${COMPANY.ragioneSociale}
-${indirizzoCompleto()}
+        {`Destinatario: ${COMPANY.ragioneSociale} — ${COMPANY.marchio}
+${indirizzoOperativo()}
 Email: ${COMPANY.email}
 PEC: ${COMPANY.emailPec}
 

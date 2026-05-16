@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import InfoPageLayout from "@modules/assistenza/components/info-page-layout"
-import { COMPANY, indirizzoCompleto } from "@lib/util/company-info"
+import { COMPANY, indirizzoLegale } from "@lib/util/company-info"
 
 export const metadata: Metadata = {
   title: "Informativa sulla Privacy | Arredo Vita",
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
       <h2>1. Titolare del trattamento</h2>
       <p>
         Il Titolare del trattamento è <strong>{COMPANY.ragioneSociale}</strong>,
-        con sede legale in {indirizzoCompleto()}, P.IVA {COMPANY.piva}.{" "}
+        con sede legale in {indirizzoLegale()}, P.IVA {COMPANY.piva}.{" "}
         <br />
         Email: <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> · PEC:{" "}
         <a href={`mailto:${COMPANY.emailPec}`}>{COMPANY.emailPec}</a>.

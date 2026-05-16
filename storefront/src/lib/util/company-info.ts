@@ -3,43 +3,52 @@
  * - D.Lgs. 70/2003 art. 7 (commercio elettronico — informazioni generali obbligatorie)
  * - D.Lgs. 206/2005 art. 49 (informazioni precontrattuali)
  *
- * I valori contrassegnati come "TODO" devono essere confermati prima della messa
- * in produzione. Sostituire qui propaga su footer, /contatti, /note-legali ed
- * email transazionali.
+ * Fonte: Visura Camerale CCIAA di Bolzano.
  */
 
 export const COMPANY = {
   // Identità giuridica
-  ragioneSociale: "Arredo Vita S.r.l.", // TODO: confermare denominazione esatta
+  ragioneSociale: "Premium Transport S.r.l.",
   marchio: "Arredo Vita",
-  piva: "IT00000000000", // TODO: inserire P.IVA reale
-  codiceFiscale: "00000000000", // TODO: inserire CF
-  rea: "XX-000000", // TODO: numero REA (Camera di Commercio)
-  capitaleSociale: "10.000,00 €", // TODO: capitale sociale i.v.
+  formaGiuridica: "Società a responsabilità limitata",
+  piva: "03264470216",
+  codiceFiscale: "03264470216",
+  rea: "BZ-245628",
+  capitaleSociale: "10.000,00 € i.v.",
+  amministratoreUnico: "Mircea Andrei Croitor",
 
-  // Sede
+  // Sede legale (da visura — Camera di Commercio di Bolzano)
   sedeLegale: {
-    via: "Via Esempio, 1", // TODO
-    cap: "00000",
-    citta: "Città",
-    provincia: "XX",
+    via: "Via Niccolò Copernico 4",
+    cap: "39100",
+    citta: "Bolzano",
+    provincia: "BZ",
+    paese: "Italia",
+  },
+
+  // Sede operativa / punto vendita / contatto clienti
+  sedeOperativa: {
+    via: "Via Michelangelo 9",
+    cap: "25013",
+    citta: "Carpenedolo",
+    provincia: "BS",
     paese: "Italia",
   },
 
   // Contatti
-  email: "ufficio@arredovita.it",
-  emailPec: "arredovita@pec.it", // TODO: PEC ufficiale
-  telefono: "+39 000 000 0000", // TODO: numero pubblico
-  whatsapp: "+39 000 000 0000", // TODO: stesso numero o dedicato
+  email: "info@arredovita.it",
+  emailPec: "premiumtransportsrl@pecpdcna.it",
+  telefono: "+39 349 827 7727",
+  whatsapp: "+39 349 827 7727",
 
-  // Orari servizio clienti (testo libero, mostrato in /contatti e footer)
+  // Orari servizio clienti
   orari: "Lun–Ven 9:00–13:00 / 14:30–18:30",
   slaRisposta: "Rispondiamo entro 24–48 ore lavorative.",
 
   // Social
   social: {
-    instagram: "https://www.instagram.com/arredovita", // TODO
-    pinterest: "https://www.pinterest.it/arredovita", // TODO
+    instagram: "https://www.instagram.com/arredovita",
+    pinterest: "https://www.pinterest.it/arredovita",
   },
 
   // Web
@@ -47,7 +56,27 @@ export const COMPANY = {
   baseUrl: "https://arredovita.it",
 } as const
 
-export function indirizzoCompleto(): string {
-  const s = COMPANY.sedeLegale
+type Indirizzo = {
+  readonly via: string
+  readonly cap: string
+  readonly citta: string
+  readonly provincia: string
+  readonly paese: string
+}
+
+function format(s: Indirizzo): string {
   return `${s.via}, ${s.cap} ${s.citta} (${s.provincia}), ${s.paese}`
+}
+
+export function indirizzoLegale(): string {
+  return format(COMPANY.sedeLegale)
+}
+
+export function indirizzoOperativo(): string {
+  return format(COMPANY.sedeOperativa)
+}
+
+/** @deprecated Usa `indirizzoLegale()` o `indirizzoOperativo()` — questa funzione punta alla sede legale per retro-compatibilità. */
+export function indirizzoCompleto(): string {
+  return indirizzoLegale()
 }

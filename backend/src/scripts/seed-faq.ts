@@ -161,7 +161,7 @@ const SEED: SeedCategory[] = [
       {
         question: "Posso ordinare ricambi o pezzi mancanti?",
         answer:
-          "Sì, scrivici a **[ufficio@arredovita.it](mailto:ufficio@arredovita.it)** o tramite [il modulo di contatto](/contatti) indicando il numero d'ordine e il pezzo necessario.",
+          "Sì, scrivici a **[info@arredovita.it](mailto:info@arredovita.it)** o tramite [il modulo di contatto](/contatti) indicando il numero d'ordine e il pezzo necessario.",
       },
     ],
   },
@@ -195,7 +195,7 @@ const SEED: SeedCategory[] = [
       {
         question: "Come posso contattarvi?",
         answer:
-          "- **Modulo di contatto**: [/contatti](/contatti)\n- **Email**: ufficio@arredovita.it\n- **Telefono**: indicato in [pagina contatti](/contatti)\n\nRispondiamo entro **24–48 ore lavorative** (lun–ven).",
+          "- **Modulo di contatto**: [/contatti](/contatti)\n- **Email**: info@arredovita.it\n- **Telefono**: indicato in [pagina contatti](/contatti)\n\nRispondiamo entro **24–48 ore lavorative** (lun–ven).",
       },
       {
         question: "Come posso presentare un reclamo formale?",
@@ -221,6 +221,7 @@ export default async function seedFaq({ container }: ExecArgs) {
   let createdCats = 0
   let updatedCats = 0
   let createdItems = 0
+  let updatedItems = 0
 
   for (let i = 0; i < SEED.length; i++) {
     const seed = SEED[i]
@@ -252,23 +253,38 @@ export default async function seedFaq({ container }: ExecArgs) {
     }
 
     const existingItems = await faqService.listFaqItems({ category_id: categoryId })
-    const existingQuestions = new Set(existingItems.map((it: any) => it.question))
+    const existingByQuestion = new Map(
+      existingItems.map((it: any) => [it.question, it])
+    )
 
     for (let j = 0; j < seed.items.length; j++) {
       const it = seed.items[j]
-      if (existingQuestions.has(it.question)) continue
-      await faqService.createFaqItems({
-        question: it.question,
-        answer: it.answer,
-        display_order: j,
-        is_published: true,
-        category: categoryId,
-      } as any)
-      createdItems++
+      const existing = existingByQuestion.get(it.question) as any | undefined
+      if (existing) {
+        // Upsert: aggiorna risposta, ordine e stato dal sorgente del seed.
+        await faqService.updateFaqItems([
+          {
+            id: existing.id,
+            answer: it.answer,
+            display_order: j,
+            is_published: true,
+          },
+        ])
+        updatedItems++
+      } else {
+        await faqService.createFaqItems({
+          question: it.question,
+          answer: it.answer,
+          display_order: j,
+          is_published: true,
+          category: categoryId,
+        } as any)
+        createdItems++
+      }
     }
   }
 
   logger.info(
-    `FAQ seed completato: ${createdCats} categorie create, ${updatedCats} aggiornate, ${createdItems} domande aggiunte.`
+    `FAQ seed completato: ${createdCats} categorie create, ${updatedCats} aggiornate, ${createdItems} domande aggiunte, ${updatedItems} domande aggiornate.`
   )
 }
