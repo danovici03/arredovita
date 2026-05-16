@@ -33,7 +33,8 @@ export const listFaq = async (): Promise<FaqCategoryDTO[]> => {
       cache: "force-cache",
     })
     return categories ?? []
-  } catch {
+  } catch (err) {
+    console.error("[listFaq] failed to fetch /store/faq", err)
     return []
   }
 }
