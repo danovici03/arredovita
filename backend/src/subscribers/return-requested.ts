@@ -16,14 +16,6 @@ export default async function returnRequestedHandler({
   const notification = container.resolve(Modules.NOTIFICATION)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-  const adminTo = process.env.ADMIN_ORDER_NOTIFICATION_EMAIL
-  if (!adminTo) {
-    logger.warn(
-      "return.requested: ADMIN_ORDER_NOTIFICATION_EMAIL not set — skipping",
-    )
-    return
-  }
-
   const { data: orders } = await query.graph({
     entity: "order",
     fields: [
@@ -36,6 +28,8 @@ export default async function returnRequestedHandler({
       "items.title",
       "items.variant_title",
       "items.quantity",
+      "shipping_address.first_name",
+      "shipping_address.last_name",
     ],
     filters: { id: event.data.order_id },
   })
@@ -57,16 +51,42 @@ export default async function returnRequestedHandler({
     return
   }
 
-  await notification.createNotifications({
-    to: adminTo,
-    channel: "email",
-    template: "return-requested-admin",
-    data: {
-      order,
-      request,
-      admin_url: process.env.MEDUSA_BACKEND_URL || process.env.ADMIN_URL,
-    },
-  })
+  const sends: Promise<unknown>[] = []
+  const adminUrl = process.env.MEDUSA_BACKEND_URL || process.env.ADMIN_URL
+  const storefrontUrl = process.env.STOREFRONT_URL
+  const adminTo = process.env.ADMIN_ORDER_NOTIFICATION_EMAIL
+
+  if (adminTo) {
+    sends.push(
+      notification.createNotifications({
+        to: adminTo,
+        channel: "email",
+        template: "return-requested-admin",
+        data: { order, request, admin_url: adminUrl, storefront_url: storefrontUrl },
+      }),
+    )
+  } else {
+    logger.warn(
+      "return.requested: ADMIN_ORDER_NOTIFICATION_EMAIL not set — skipping admin notification",
+    )
+  }
+
+  if (order.email) {
+    sends.push(
+      notification.createNotifications({
+        to: order.email,
+        channel: "email",
+        template: "return-requested-customer",
+        data: { order, request, storefront_url: storefrontUrl },
+      }),
+    )
+  } else {
+    logger.warn(
+      `return.requested: order ${order.id} has no customer email — skipping customer notification`,
+    )
+  }
+
+  await Promise.all(sends)
 }
 
 export const config: SubscriberConfig = {

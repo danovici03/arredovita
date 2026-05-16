@@ -212,6 +212,41 @@ export const account = {
     submitted: "Richiesta inviata. Ti contatteremo entro 48 ore.",
   },
 
+  // Order confirmed (thank-you page after checkout)
+  orderConfirmed: {
+    metaTitle: "Ordine confermato",
+    metaDescription: "Il tuo acquisto è andato a buon fine",
+    badge: "Ordine confermato",
+    title: "Grazie!",
+    subtitle: "Il tuo ordine è stato registrato con successo.",
+    emailNotice: "Abbiamo inviato la conferma a",
+    orderNumber: "Ordine n.",
+    placedOn: "Effettuato il",
+    downloadInvoice: "Scarica fattura PDF",
+    viewOrders: "Vai ai miei ordini",
+    itemsTitle: "Articoli",
+    summaryTitle: "Riepilogo",
+    shippingAddress: "Indirizzo di spedizione",
+    shippingMethod: "Metodo di spedizione",
+    paymentMethod: "Metodo di pagamento",
+    paidAt: "Pagato il",
+    nextStepsTitle: "Cosa succede ora?",
+    nextStepsBody:
+      "Riceverai una nuova email non appena il tuo ordine sarà preparato e spedito. Puoi seguire lo stato dell'ordine dalla tua area personale.",
+    onboardingTitle: "Ordine di prova creato con successo",
+    onboardingBody:
+      "Puoi ora completare la configurazione del tuo negozio dall'area admin.",
+    onboardingCta: "Completa la configurazione",
+    paymentTitles: {
+      card: "Carta di credito",
+      paypal: "PayPal",
+      ideal: "iDeal",
+      bancontact: "Bancontact",
+      manual: "Pagamento manuale",
+      fallback: "Pagamento",
+    },
+  },
+
   // Preferences
   preferences: {
     title: "Preferenze",
