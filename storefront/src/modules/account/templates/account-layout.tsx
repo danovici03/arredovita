@@ -16,7 +16,7 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
 }) => {
   return (
     <div className="bg-brand-light min-h-screen" data-testid="account-page">
-      <div className="content-container max-w-7xl mx-auto py-8 small:py-16">
+      <div className="content-container mx-auto py-8 small:py-16">
         {customer ? (
           <div className="grid grid-cols-1 small:grid-cols-[280px_1fr] gap-8 small:gap-12">
             <aside className="small:sticky small:top-24 small:self-start">

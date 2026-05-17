@@ -96,7 +96,7 @@ export default async function OrderCompletedTemplate({
 
   return (
     <div className="bg-brand-light/40 py-10 small:py-16 min-h-[calc(100vh-64px)]">
-      <div className="content-container max-w-4xl mx-auto flex flex-col gap-6">
+      <div className="content-container max-w-7xl mx-auto flex flex-col gap-6">
         {isOnboarding && <OnboardingCta orderId={order.id} />}
 
         <header
