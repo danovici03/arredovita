@@ -2,16 +2,22 @@
 
 import { RadioGroup } from "@headlessui/react"
 import { isStripeLike, paymentInfoMap } from "@lib/constants"
-import { initiatePaymentSession } from "@lib/data/cart"
+import { initiatePaymentSession, placeOrder } from "@lib/data/cart"
 import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
 import { Button, Container, Heading, Text, clx } from "@medusajs/ui"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import PaymentContainer, {
-  StripeCardContainer,
+  StripePaymentContainer,
 } from "@modules/checkout/components/payment-container"
 import Divider from "@modules/common/components/divider"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
+
+// Hide the per-method Stripe sub-providers (stripe-bancontact, stripe-blik, …).
+// The unified `pp_stripe_stripe` provider drives Stripe's PaymentElement, which
+// surfaces every method enabled in the Stripe Dashboard (cards, Klarna, etc.).
+const isHiddenStripeSubprovider = (id?: string) =>
+  !!id && id.startsWith("pp_stripe-")
 
 const Payment = ({
   cart,
@@ -24,10 +30,16 @@ const Payment = ({
     (paymentSession: any) => paymentSession.status === "pending"
   )
 
+  const visiblePaymentMethods = availablePaymentMethods.filter(
+    (pm) => !isHiddenStripeSubprovider(pm.id)
+  )
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [cardBrand, setCardBrand] = useState<string | null>(null)
-  const [cardComplete, setCardComplete] = useState(false)
+  const [paymentMethodLabel, setPaymentMethodLabel] = useState<string | null>(
+    null
+  )
+  const [stripeReady, setStripeReady] = useState(false)
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
     activeSession?.provider_id ?? ""
   )
@@ -100,6 +112,25 @@ const Payment = ({
     }
   }
 
+  // When Stripe redirects back from an off-site method (Klarna, iDEAL, …) the
+  // URL contains ?redirect_status=succeeded. Complete the order automatically.
+  useEffect(() => {
+    const redirectStatus = searchParams.get("redirect_status")
+    if (!redirectStatus) return
+
+    if (redirectStatus === "succeeded") {
+      setIsLoading(true)
+      placeOrder().catch((err) => {
+        setError(err?.message || "Errore durante la conferma dell'ordine.")
+        setIsLoading(false)
+      })
+    } else if (redirectStatus === "failed") {
+      setError(
+        "Il pagamento non è andato a buon fine. Riprova o scegli un altro metodo."
+      )
+    }
+  }, [searchParams])
+
   useEffect(() => {
     setError(null)
   }, [isOpen])
@@ -134,22 +165,22 @@ const Payment = ({
       </div>
       <div>
         <div className={isOpen ? "block" : "hidden"}>
-          {!paidByGiftcard && availablePaymentMethods?.length && (
+          {!paidByGiftcard && visiblePaymentMethods?.length && (
             <>
               <RadioGroup
                 value={selectedPaymentMethod}
                 onChange={(value: string) => setPaymentMethod(value)}
               >
-                {availablePaymentMethods.map((paymentMethod) => (
+                {visiblePaymentMethods.map((paymentMethod) => (
                   <div key={paymentMethod.id}>
                     {isStripeLike(paymentMethod.id) ? (
-                      <StripeCardContainer
+                      <StripePaymentContainer
                         paymentProviderId={paymentMethod.id}
                         selectedPaymentOptionId={selectedPaymentMethod}
                         paymentInfoMap={paymentInfoMap}
-                        setCardBrand={setCardBrand}
+                        setPaymentMethodLabel={setPaymentMethodLabel}
                         setError={setError}
-                        setCardComplete={setCardComplete}
+                        setStripeReady={setStripeReady}
                       />
                     ) : (
                       <PaymentContainer
@@ -189,14 +220,14 @@ const Payment = ({
             onClick={handleSubmit}
             isLoading={isLoading}
             disabled={
-              (isStripeLike(selectedPaymentMethod) && !cardComplete) ||
+              (isStripeLike(selectedPaymentMethod) && !stripeReady) ||
               (!selectedPaymentMethod && !paidByGiftcard)
             }
             data-testid="submit-payment-button"
           >
             {!activeSession && isStripeLike(selectedPaymentMethod)
-              ? " Enter card details"
-              : "Continue to review"}
+              ? "Inserisci i dati di pagamento"
+              : "Continua alla revisione"}
           </Button>
         </div>
 
@@ -229,9 +260,9 @@ const Payment = ({
                     )}
                   </Container>
                   <Text>
-                    {isStripeLike(selectedPaymentMethod) && cardBrand
-                      ? cardBrand
-                      : "Another step will appear"}
+                    {isStripeLike(selectedPaymentMethod) && paymentMethodLabel
+                      ? paymentMethodLabel
+                      : "Si aprirà un passaggio successivo"}
                   </Text>
                 </div>
               </div>

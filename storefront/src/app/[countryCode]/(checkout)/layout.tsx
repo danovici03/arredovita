@@ -26,10 +26,18 @@ export default function CheckoutLayout({
           </LocalizedClientLink>
           <LocalizedClientLink
             href="/"
-            className="font-serif text-xl lg:text-2xl font-black tracking-tighter text-brand-dark uppercase hover:text-brand-dark"
+            className="flex items-center shrink-0"
             data-testid="store-link"
+            aria-label="Arredo Vita — Home"
           >
-            ARREDO VITA<span className="text-brand-accent">.</span>
+            <img
+              src="/logo-arredo-vita.svg"
+              alt="Arredo Vita"
+              width={3233}
+              height={568}
+              className="h-8 lg:h-10 w-auto select-none"
+              draggable={false}
+            />
           </LocalizedClientLink>
           <div className="flex-1 basis-0" />
         </nav>
