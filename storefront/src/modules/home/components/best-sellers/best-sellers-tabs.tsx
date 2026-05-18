@@ -1,6 +1,7 @@
 "use client"
 
 import { getProductPrice } from "@lib/util/get-product-price"
+import { OUTLET_BADGE_LABEL, isOutletProduct } from "@lib/util/outlet"
 import {
   SHOWROOM_BADGE_LABEL,
   isShowroomProduct,
@@ -24,6 +25,7 @@ type BestSellersTabsProps = {
 }
 
 const getBadge = (product: HttpTypes.StoreProduct): string | null => {
+  if (isOutletProduct(product)) return OUTLET_BADGE_LABEL
   if (isShowroomProduct(product)) return SHOWROOM_BADGE_LABEL
   const tags = (product.tags ?? []).map((t) => t.value?.toLowerCase() ?? "")
   if (tags.includes("new") || tags.includes("nuovo")) return "Nuovo"
@@ -54,6 +56,7 @@ const getColorOption = (product: HttpTypes.StoreProduct) => {
 const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
   const { cheapestPrice } = getProductPrice({ product })
   const badge = getBadge(product)
+  const isOutletBadge = badge === OUTLET_BADGE_LABEL
   const rating = getRating(product)
   const colorOption = getColorOption(product)
 
@@ -89,7 +92,13 @@ const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
           />
         )}
         {badge && (
-          <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white text-[10px] font-bold uppercase tracking-widest text-brand-dark">
+          <span
+            className={`absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+              isOutletBadge
+                ? "bg-brand-accent text-white"
+                : "bg-white text-brand-dark"
+            }`}
+          >
             {badge}
           </span>
         )}

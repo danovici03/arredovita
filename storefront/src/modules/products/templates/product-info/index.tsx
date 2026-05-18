@@ -1,4 +1,9 @@
 import {
+  OUTLET_BADGE_LABEL,
+  OUTLET_DESCRIPTION,
+  isOutletProduct,
+} from "@lib/util/outlet"
+import {
   SHOWROOM_BADGE_LABEL,
   SHOWROOM_DESCRIPTION,
   isShowroomProduct,
@@ -6,7 +11,7 @@ import {
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ProductRating from "@modules/products/components/product-rating"
-import { Storefront } from "@phosphor-icons/react/dist/ssr"
+import { Storefront, Tag } from "@phosphor-icons/react/dist/ssr"
 
 type ProductInfoProps = {
   product: HttpTypes.StoreProduct
@@ -29,7 +34,8 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
   const rating = ratingRaw && !Number.isNaN(ratingRaw) ? ratingRaw : null
   const reviewCount =
     reviewCountRaw && !Number.isNaN(reviewCountRaw) ? reviewCountRaw : undefined
-  const showroom = isShowroomProduct(product)
+  const outlet = isOutletProduct(product)
+  const showroom = !outlet && isShowroomProduct(product)
 
   return (
     <div id="product-info" className="flex flex-col gap-y-4">
@@ -49,6 +55,36 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       </h1>
       {rating !== null && (
         <ProductRating rating={rating} reviewCount={reviewCount} />
+      )}
+      {outlet && (
+        <div
+          className="flex items-start gap-3 rounded-2xl border border-brand-accent/40 bg-brand-accent/10 p-4"
+          data-testid="product-outlet-note"
+        >
+          <Tag
+            size={20}
+            weight="duotone"
+            className="text-brand-accent shrink-0 mt-0.5"
+          />
+          <div className="flex flex-col gap-1">
+            <span className="text-xs uppercase tracking-[0.18em] font-bold text-brand-accent">
+              {OUTLET_BADGE_LABEL} · Ex esposizione
+            </span>
+            <p className="text-sm text-brand-dark/70 leading-relaxed">
+              {OUTLET_DESCRIPTION}
+            </p>
+            <p className="text-xs text-brand-dark/50 leading-relaxed mt-1">
+              Maggiori dettagli all&apos;
+              <LocalizedClientLink
+                href="/termini#prodotti-outlet"
+                className="underline hover:text-brand-accent"
+              >
+                art. 8 dei Termini e Condizioni
+              </LocalizedClientLink>
+              .
+            </p>
+          </div>
+        </div>
       )}
       {showroom && (
         <div

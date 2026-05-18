@@ -5,7 +5,7 @@ import { COMPANY } from "@lib/util/company-info"
 export const metadata: Metadata = {
   title: "Garanzia | Arredo Vita",
   description:
-    "Garanzia legale di conformità di 24 mesi ai sensi del Codice del Consumo. Come attivarla e cosa copre.",
+    "Garanzia legale di conformità di 24 mesi (12 mesi per i prodotti Outlet) ai sensi del Codice del Consumo. Come attivarla e cosa copre.",
 }
 
 export default function GaranziaPage() {
@@ -144,6 +144,18 @@ export default function GaranziaPage() {
           calore, allagamenti, ecc.).
         </li>
       </ul>
+
+      <h2>Prodotti Outlet / Ex esposizione</h2>
+      <p>
+        Per i prodotti contrassegnati nella scheda articolo come{" "}
+        <strong>&laquo;Outlet&raquo;</strong> o{" "}
+        <strong>&laquo;Ex esposizione&raquo;</strong>, in quanto beni
+        usati ai sensi dell&apos;art. 134 c. 2 Cod. Cons., la durata della
+        garanzia legale di conformità è ridotta a{" "}
+        <strong>12 mesi</strong> dalla consegna. La disciplina completa è
+        dettagliata all&apos;art. 8 dei{" "}
+        <a href="/termini">Termini e Condizioni</a>.
+      </p>
 
       <hr />
       <p className="text-xs text-brand-dark/50">
