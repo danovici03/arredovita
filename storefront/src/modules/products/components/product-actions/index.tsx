@@ -9,15 +9,17 @@ import {
   ArrowUUpLeft,
   EnvelopeSimple,
   FacebookLogo,
+  MapPin,
   Minus,
   Plus,
+  Recycle,
   ShieldCheck,
   ShoppingBag,
   Storefront,
-  Truck,
   WhatsappLogo,
   XLogo,
 } from "@phosphor-icons/react/dist/ssr"
+import KlarnaMessaging from "@modules/products/components/klarna-messaging"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import ProductUpgrades, {
   UpgradeSelection,
@@ -425,6 +427,13 @@ export default function ProductActions({
           {isBuyingNow ? "Reindirizzamento…" : "Acquista ora"}
         </button>
 
+        {selectedPrice?.calculated_price_number ? (
+          <KlarnaMessaging
+            amount={selectedPrice.calculated_price_number}
+            currency={selectedPrice.currency_code ?? "eur"}
+          />
+        ) : null}
+
         {addError && (
           <p
             role="alert"
@@ -437,9 +446,14 @@ export default function ProductActions({
         <ul className="flex flex-col gap-2 text-sm">
           {[
             {
-              Icon: Truck,
-              title: "Spedizione gratuita in Italia",
-              note: "Per ordini superiori a 250€ — consegna in 3–5 giorni",
+              Icon: MapPin,
+              title: "Trasporto e montaggio gratuiti",
+              note: "Entro 20 km dallo showroom",
+            },
+            {
+              Icon: Recycle,
+              title: "Ritiro del mobile usato",
+              note: "Incluso nella consegna locale",
             },
             {
               Icon: ArrowUUpLeft,
