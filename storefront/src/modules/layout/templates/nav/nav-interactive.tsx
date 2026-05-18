@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode, useEffect, useRef, useState } from "react"
+import { usePathname } from "next/navigation"
 
 import MegaMenuPanel from "@modules/layout/components/mega-menu/panel"
 import MegaMenuTriggers from "@modules/layout/components/mega-menu/triggers"
@@ -14,6 +15,7 @@ type Props = {
 export default function NavInteractive({ left, right }: Props) {
   const [active, setActive] = useState<string | null>(null)
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pathname = usePathname()
 
   const cancelDismiss = () => {
     if (dismissTimerRef.current) {
@@ -42,6 +44,12 @@ export default function NavInteractive({ left, right }: Props) {
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [])
+
+  // Close the panel on client-side navigation (link clicks inside the menu).
+  useEffect(() => {
+    cancelDismiss()
+    setActive(null)
+  }, [pathname])
 
   return (
     <>

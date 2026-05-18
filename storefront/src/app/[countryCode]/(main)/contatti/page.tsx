@@ -48,6 +48,7 @@ export default function ContattiPage() {
         { label: "Assistenza", href: "/assistenza" },
         { label: "Contatti" },
       ]}
+      wide
     >
       <div className="not-prose grid grid-cols-1 lg:grid-cols-5 gap-12">
         <div className="lg:col-span-3">

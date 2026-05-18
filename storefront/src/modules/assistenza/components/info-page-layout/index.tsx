@@ -11,6 +11,7 @@ type Props = {
   breadcrumbs?: Crumb[]
   children: ReactNode
   asideTop?: ReactNode
+  wide?: boolean
 }
 
 export default function InfoPageLayout({
@@ -20,7 +21,9 @@ export default function InfoPageLayout({
   breadcrumbs,
   children,
   asideTop,
+  wide = false,
 }: Props) {
+  const contentMaxWidth = wide ? "max-w-[1100px]" : "max-w-[900px]"
   return (
     <div className="bg-white pb-24">
       <section className="bg-brand-dark text-white pt-12 pb-20 rounded-b-[3rem] mb-16">
@@ -66,7 +69,7 @@ export default function InfoPageLayout({
         </div>
       </section>
 
-      <div className="max-w-[900px] mx-auto px-4 sm:px-8">
+      <div className={`${contentMaxWidth} mx-auto px-4 sm:px-8`}>
         {asideTop}
         <div className="prose prose-neutral max-w-none prose-headings:font-bold prose-headings:text-brand-dark prose-h2:mt-12 prose-h2:mb-4 prose-h2:text-2xl prose-h3:text-xl prose-a:text-brand-accent prose-a:no-underline hover:prose-a:underline prose-strong:text-brand-dark prose-li:my-1">
           {children}
